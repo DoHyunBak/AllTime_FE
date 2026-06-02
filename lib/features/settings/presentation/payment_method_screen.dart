@@ -57,8 +57,6 @@ class PaymentMethodScreen extends ConsumerWidget {
             const SizedBox(height: 32),
             GlassContainer(
               padding: EdgeInsets.zero,
-              opacity: 0.05,
-              borderOpacity: 0.1,
               child: Column(
                 children: _methods.map((method) {
                   final isSelected = method == selectedMethod;

@@ -13,15 +13,28 @@ abstract final class AppColors {
   static const bgCard     = Color(0xFFFFFFFF); // Card white
   static const bgAlt      = Color(0xFFF0F2F5); // Alt grey
 
+  // ── Background (Dark) ─────────────────────────────────────
+  static const bgBaseDark     = Color(0xFF0F172A); // Deep Navy
+  static const bgSurfaceDark  = Color(0xFF1E293B); // Slate
+  static const bgElevatedDark = Color(0xFF334155); // Elevated slate
+  static const bgCardDark     = Color(0xFF1E293B);
+  static const bgAltDark      = Color(0xFF020617);
+
   // ── Text ──────────────────────────────────────────────────
   static const textPrimary   = Color(0xFF0D1117); // Near black
   static const textSecondary = Color(0xFF4B5563); // Medium grey
   static const textMuted     = Color(0xFF9CA3AF); // Light grey
   static const textWhite     = Color(0xFFFFFFFF); // For dark surfaces
 
+  // ── Text (Dark) ───────────────────────────────────────────
+  static const textPrimaryDark   = Color(0xFFF8FAFC);
+  static const textSecondaryDark = Color(0xFFCBD5E1);
+  static const textMutedDark     = Color(0xFF64748B);
+
   // ── Border ────────────────────────────────────────────────
   static const borderLight  = Color(0xFFE5E7EB); // Main border
   static const borderButton = Color(0xFFD1D5DB); // Button border
+  static const borderDark   = Color(0xFF334155); // Dark mode border
 
   // ── Semantic ──────────────────────────────────────────────
   static const error   = Color(0xFFDC2626); // Red

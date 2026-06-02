@@ -1,84 +1,117 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_theme.dart';
 
-/// 글래스모피즘 카드 컨테이너.
-/// 반투명 흰색 + 배경 블러(BackdropFilter) + 미세한 하이라이트 보더로
-/// 프로스티드 글래스 효과를 냅니다. (색상 팔레트는 기존 라이트 테마 유지)
-class GlassContainer extends StatelessWidget {
-  const GlassContainer({
+/// Apple 스타일 글래스모피즘 카드.
+///
+/// 설계 원칙
+/// - Blur: 15~20 프로스티드 글래스 효과 (ImageFilter.blur)
+/// - Surface: 반투명 흰색 기반 그라데이션
+/// - Border: 1px 그라데이션 보더로 가장자리 입체감
+/// - Shadow: 매우 부드럽고 확산되는 그림자
+/// - 성능: RepaintBoundary로 블러 레이어 분리
+class GlassCard extends StatelessWidget {
+  const GlassCard({
     super.key,
     required this.child,
-    this.borderRadius = 16,
+    this.borderRadius = 24,
     this.padding = const EdgeInsets.all(20),
     this.margin,
-    this.blurSigma = 18,
-    this.opacity = 0.55,
-    this.borderOpacity = 0.6,
     this.width,
     this.height,
-    this.boxShadow,
+    this.isFullWidth = false,
   });
 
   final Widget child;
   final double borderRadius;
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry? margin;
-  final double blurSigma;
-  final double opacity;
-  final double borderOpacity;
   final double? width;
   final double? height;
-  final List<BoxShadow>? boxShadow;
+  final bool isFullWidth;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final glassTheme = theme.extension<GlassTheme>()!;
+    final isDark = theme.brightness == Brightness.dark;
     final radius = BorderRadius.circular(borderRadius);
-    return Container(
-      margin: margin,
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        borderRadius: radius,
-        boxShadow: boxShadow ?? [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.06),
-            offset: const Offset(0, 8),
-            blurRadius: 24,
+
+    return RepaintBoundary(
+      child: Container(
+        width: isFullWidth ? double.infinity : width,
+        height: height,
+        margin: margin,
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+              spreadRadius: -4,
+            ),
+          ],
+        ),
+        child: CustomPaint(
+          painter: _GradientBorderPainter(
+            radius: borderRadius,
+            gradient: glassTheme.borderGradient,
+            strokeWidth: 1,
           ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            offset: const Offset(0, 2),
-            blurRadius: 8,
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: radius,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-          child: Container(
-            padding: padding,
-            decoration: BoxDecoration(
-              borderRadius: radius,
-              // 반투명 흰색 글래스 면 + 위→아래 미세 그라데이션
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: (opacity + 0.18).clamp(0.0, 1.0)),
-                  Colors.white.withValues(alpha: opacity),
-                ],
-              ),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: borderOpacity),
-                width: 1.0,
+          child: ClipRRect(
+            borderRadius: radius,
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: glassTheme.blurSigma, sigmaY: glassTheme.blurSigma),
+              child: Container(
+                padding: padding,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withValues(alpha: isDark ? 0.08 : 0.15),
+                      Colors.white.withValues(alpha: isDark ? 0.02 : 0.05),
+                    ],
+                  ),
+                ),
+                child: child,
               ),
             ),
-            child: child,
           ),
         ),
       ),
     );
   }
 }
+
+/// 그라데이션 보더를 그리는 페인터
+class _GradientBorderPainter extends CustomPainter {
+  _GradientBorderPainter({
+    required this.radius,
+    required this.gradient,
+    required this.strokeWidth,
+  });
+
+  final double radius;
+  final Gradient gradient;
+  final double strokeWidth;
+  final Paint _paint = Paint();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    _paint.shader = gradient.createShader(rect);
+    _paint.style = PaintingStyle.stroke;
+    _paint.strokeWidth = strokeWidth;
+
+    final RRect rrect = RRect.fromRectAndRadius(rect, Radius.circular(radius));
+    canvas.drawRRect(rrect, _paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// 기존 코드 호환성을 위한 별칭
+typedef GlassContainer = GlassCard;
