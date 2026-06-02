@@ -1,15 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../core/theme/app_theme.dart';
+import '../../core/theme/app_colors.dart';
 
-/// Apple 스타일 글래스모피즘 카드.
-///
-/// 설계 원칙
-/// - Blur: 15~20 프로스티드 글래스 효과 (ImageFilter.blur)
-/// - Surface: 반투명 흰색 기반 그라데이션
-/// - Border: 1px 그라데이션 보더로 가장자리 입체감
-/// - Shadow: 매우 부드럽고 확산되는 그림자
-/// - 성능: RepaintBoundary로 블러 레이어 분리
+/// 배경이 흰색일 때도 가독성을 유지하는 글래스모피즘 카드.
 class GlassCard extends StatelessWidget {
   const GlassCard({
     super.key,
@@ -33,7 +26,6 @@ class GlassCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final glassTheme = theme.extension<GlassTheme>()!;
     final isDark = theme.brightness == Brightness.dark;
     final radius = BorderRadius.circular(borderRadius);
 
@@ -46,34 +38,37 @@ class GlassCard extends StatelessWidget {
           borderRadius: radius,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
-              blurRadius: 24,
+              color: isDark 
+                  ? Colors.black.withValues(alpha: 0.3) 
+                  : Colors.black.withValues(alpha: 0.08),
+              blurRadius: 20,
               offset: const Offset(0, 8),
-              spreadRadius: -4,
+              spreadRadius: -2,
             ),
           ],
         ),
         child: CustomPaint(
           painter: _GradientBorderPainter(
             radius: borderRadius,
-            gradient: glassTheme.borderGradient,
-            strokeWidth: 1,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isDark
+                  ? [Colors.white.withValues(alpha: 0.15), Colors.white.withValues(alpha: 0.02)]
+                  : [AppColors.primary.withValues(alpha: 0.2), Colors.black.withValues(alpha: 0.05)],
+            ),
+            strokeWidth: 1.2,
           ),
           child: ClipRRect(
             borderRadius: radius,
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: glassTheme.blurSigma, sigmaY: glassTheme.blurSigma),
+              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
               child: Container(
                 padding: padding,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.white.withValues(alpha: isDark ? 0.08 : 0.15),
-                      Colors.white.withValues(alpha: isDark ? 0.02 : 0.05),
-                    ],
-                  ),
+                  color: isDark
+                      ? AppColors.bgSurfaceDark.withValues(alpha: 0.7)
+                      : Colors.white.withValues(alpha: 0.8), // 흰색 배경 위에서 보이도록 불투명도 조절
                 ),
                 child: child,
               ),
@@ -85,7 +80,6 @@ class GlassCard extends StatelessWidget {
   }
 }
 
-/// 그라데이션 보더를 그리는 페인터
 class _GradientBorderPainter extends CustomPainter {
   _GradientBorderPainter({
     required this.radius,
@@ -113,5 +107,4 @@ class _GradientBorderPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// 기존 코드 호환성을 위한 별칭
 typedef GlassContainer = GlassCard;

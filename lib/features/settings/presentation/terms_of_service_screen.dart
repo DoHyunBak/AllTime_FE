@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/app_background.dart';
 
 class TermsOfServiceScreen extends StatelessWidget {
@@ -8,6 +9,9 @@ class TermsOfServiceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -17,14 +21,22 @@ class TermsOfServiceScreen extends StatelessWidget {
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
               child: AppBar(
-                backgroundColor: Colors.white.withValues(alpha: 0.1),
+                backgroundColor: isDark 
+                    ? Colors.black.withValues(alpha: 0.2) 
+                    : Colors.white.withValues(alpha: 0.5),
                 elevation: 0,
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : AppColors.textPrimary),
                   onPressed: () => context.pop(),
                 ),
-                title: const Text('이용약관', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
-                iconTheme: const IconThemeData(color: Colors.white),
+                title: Text(
+                  '이용약관', 
+                  style: TextStyle(
+                    color: isDark ? Colors.white : AppColors.textPrimary, 
+                    fontWeight: FontWeight.w800
+                  )
+                ),
+                iconTheme: IconThemeData(color: isDark ? Colors.white : AppColors.textPrimary),
               ),
             ),
           ),
@@ -34,9 +46,13 @@ class TermsOfServiceScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 '이용약관',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white),
+                style: TextStyle(
+                  fontSize: 20, 
+                  fontWeight: FontWeight.w800, 
+                  color: isDark ? Colors.white : AppColors.textPrimary
+                ),
               ),
               const SizedBox(height: 16),
               Text(
@@ -53,7 +69,11 @@ class TermsOfServiceScreen extends StatelessWidget {
                 '- 타인의 정보 도용\n'
                 '- 서비스가 정한 정보 이외의 정보의 송신 또는 게시\n\n'
                 '본 이용약관은 데모용이며 실제 서비스 론칭 시 상세 내용이 추가됩니다.',
-                style: TextStyle(fontSize: 14, height: 1.6, color: Colors.white.withValues(alpha: 0.8)),
+                style: TextStyle(
+                  fontSize: 14, 
+                  height: 1.6, 
+                  color: isDark ? Colors.white.withValues(alpha: 0.8) : AppColors.textSecondary
+                ),
               ),
             ],
           ),

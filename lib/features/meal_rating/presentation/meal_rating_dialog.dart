@@ -103,13 +103,18 @@ class _MealRatingSheetState extends State<_MealRatingSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.15),
+          color: isDark ? Colors.white.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.7),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
+          border: Border.all(
+            color: isDark ? Colors.white.withValues(alpha: 0.2) : AppColors.textPrimary.withValues(alpha: 0.1), 
+            width: 1
+          ),
         ),
         padding: EdgeInsets.only(
           left: 28,
@@ -118,7 +123,7 @@ class _MealRatingSheetState extends State<_MealRatingSheet> {
           bottom: MediaQuery.of(context).viewInsets.bottom + 32,
         ),
         child: _submitted
-            ? const _SubmittedView()
+            ? _SubmittedView(isDark: isDark)
             : Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,7 +134,7 @@ class _MealRatingSheetState extends State<_MealRatingSheet> {
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.3),
+                        color: isDark ? Colors.white.withValues(alpha: 0.3) : AppColors.textPrimary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -137,16 +142,19 @@ class _MealRatingSheetState extends State<_MealRatingSheet> {
                   const SizedBox(height: 24),
                   Text(
                     '${widget.menuName} 어떠셨나요?',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: isDark ? Colors.white : AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     '오늘 식사 평가를 남겨주세요',
-                    style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.6)),
+                    style: TextStyle(
+                      fontSize: 13, 
+                      color: isDark ? Colors.white.withValues(alpha: 0.6) : AppColors.textSecondary
+                    ),
                   ),
                   const SizedBox(height: 24),
 
@@ -160,7 +168,9 @@ class _MealRatingSheetState extends State<_MealRatingSheet> {
                         child: Icon(
                           i < _stars ? Icons.star : Icons.star_border,
                           size: 40,
-                          color: i < _stars ? AppColors.star : Colors.white.withValues(alpha: 0.2),
+                          color: i < _stars 
+                              ? AppColors.star 
+                              : (isDark ? Colors.white.withValues(alpha: 0.2) : AppColors.textPrimary.withValues(alpha: 0.1)),
                         ),
                       ),
                     )),
@@ -174,9 +184,11 @@ class _MealRatingSheetState extends State<_MealRatingSheet> {
                       width: double.infinity,
                       height: 100,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.05),
+                        color: isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.textPrimary.withValues(alpha: 0.02),
                         border: Border.all(
-                          color: _photo != null ? Colors.white.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.1),
+                          color: _photo != null 
+                              ? (isDark ? Colors.white.withValues(alpha: 0.5) : AppColors.primary.withValues(alpha: 0.3)) 
+                              : (isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.textPrimary.withValues(alpha: 0.05)),
                           width: _photo != null ? 1.5 : 1,
                         ),
                         borderRadius: BorderRadius.circular(15),
@@ -191,26 +203,36 @@ class _MealRatingSheetState extends State<_MealRatingSheet> {
                           : Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.camera_alt_outlined, color: Colors.white54, size: 28),
+                                Icon(
+                                  Icons.camera_alt_outlined, 
+                                  color: isDark ? Colors.white54 : AppColors.textSecondary, 
+                                  size: 28
+                                ),
                                 const SizedBox(height: 8),
                                 RichText(
                                   text: TextSpan(
                                     children: [
-                                      const TextSpan(
+                                      TextSpan(
                                         text: '사진 추가 시 ',
-                                        style: TextStyle(fontSize: 12, color: Colors.white54),
+                                        style: TextStyle(
+                                          fontSize: 12, 
+                                          color: isDark ? Colors.white54 : AppColors.textSecondary
+                                        ),
                                       ),
-                                      const TextSpan(
+                                      TextSpan(
                                         text: '500원 할인 쿠폰',
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: Colors.white,
+                                          color: isDark ? Colors.white : AppColors.textPrimary,
                                           fontWeight: FontWeight.w800,
                                         ),
                                       ),
-                                      const TextSpan(
+                                      TextSpan(
                                         text: ' 지급',
-                                        style: TextStyle(fontSize: 12, color: Colors.white54),
+                                        style: TextStyle(
+                                          fontSize: 12, 
+                                          color: isDark ? Colors.white54 : AppColors.textSecondary
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -225,24 +247,37 @@ class _MealRatingSheetState extends State<_MealRatingSheet> {
                   TextField(
                     controller: _commentController,
                     maxLines: 2,
-                    style: const TextStyle(fontSize: 14, color: Colors.white),
+                    style: TextStyle(
+                      fontSize: 14, 
+                      color: isDark ? Colors.white : AppColors.textPrimary
+                    ),
                     decoration: InputDecoration(
                       hintText: '한 줄 리뷰를 남겨주세요 (선택)',
-                      hintStyle: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.3)),
+                      hintStyle: TextStyle(
+                        fontSize: 14, 
+                        color: isDark ? Colors.white.withValues(alpha: 0.3) : AppColors.textMuted
+                      ),
                       contentPadding: const EdgeInsets.all(16),
                       filled: true,
-                      fillColor: Colors.white.withValues(alpha: 0.05),
+                      fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.textPrimary.withValues(alpha: 0.02),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                        borderSide: BorderSide(
+                          color: isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.textPrimary.withValues(alpha: 0.05)
+                        ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+                        borderSide: BorderSide(
+                          color: isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.textPrimary.withValues(alpha: 0.05)
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4), width: 1.5),
+                        borderSide: BorderSide(
+                          color: isDark ? Colors.white.withValues(alpha: 0.4) : AppColors.primary.withValues(alpha: 0.4), 
+                          width: 1.5
+                        ),
                       ),
                     ),
                   ),
@@ -267,7 +302,8 @@ class _MealRatingSheetState extends State<_MealRatingSheet> {
 }
 
 class _SubmittedView extends StatelessWidget {
-  const _SubmittedView();
+  const _SubmittedView({required this.isDark});
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -276,16 +312,27 @@ class _SubmittedView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.check_circle, color: Colors.white, size: 60),
+          Icon(
+            Icons.check_circle, 
+            color: isDark ? Colors.white : AppColors.primary, 
+            size: 60
+          ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             '평가 완료!',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white),
+            style: TextStyle(
+              fontSize: 18, 
+              fontWeight: FontWeight.w900, 
+              color: isDark ? Colors.white : AppColors.textPrimary
+            ),
           ),
           const SizedBox(height: 6),
           Text(
             '소중한 리뷰 감사합니다',
-            style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.6)),
+            style: TextStyle(
+              fontSize: 14, 
+              color: isDark ? Colors.white.withValues(alpha: 0.6) : AppColors.textSecondary
+            ),
           ),
         ],
       ),

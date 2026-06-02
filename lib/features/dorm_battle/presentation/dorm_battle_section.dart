@@ -12,16 +12,18 @@ class DormBattleSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
+      children: [
         // ① 오늘의 대결
-        _BattleCard(),
+        _BattleCard(isDark: isDark),
 
-        SizedBox(height: 32),
+        const SizedBox(height: 32),
 
         // ② 메뉴 인기 순위
-        _MenuRankingSection(),
+        _MenuRankingSection(isDark: isDark),
       ],
     );
   }
@@ -32,7 +34,8 @@ class DormBattleSection extends ConsumerWidget {
 // ─────────────────────────────────────────────────────────
 
 class _BattleCard extends ConsumerWidget {
-  const _BattleCard();
+  const _BattleCard({required this.isDark});
+  final bool isDark;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -44,10 +47,11 @@ class _BattleCard extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 헤딩 — 위젯 스타일 (블루)
-        const _SectionHeader(
+        _SectionHeader(
           title: '⚔️ 오늘의 대결',
-          titleColor: Colors.white,
+          titleColor: isDark ? Colors.white : AppColors.textPrimary,
           badge: '투표중',
+          isDark: isDark,
         ),
         const SizedBox(height: 12),
 
@@ -60,14 +64,17 @@ class _BattleCard extends ConsumerWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.1), width: 0.5)),
+                  border: Border(bottom: BorderSide(
+                    color: isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.textPrimary.withValues(alpha: 0.05), 
+                    width: 0.5
+                  )),
                 ),
                 child: Text(
                   battle.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white,
+                    color: isDark ? Colors.white : AppColors.textPrimary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -87,6 +94,7 @@ class _BattleCard extends ConsumerWidget {
                         votes: battle.votesA,
                         isSelected: myVote == 'A',
                         hasVoted: hasVoted,
+                        isDark: isDark,
                         onTap: hasVoted
                             ? null
                             : () {
@@ -102,14 +110,14 @@ class _BattleCard extends ConsumerWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: isDark ? Colors.white.withValues(alpha: 0.2) : AppColors.textPrimary.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                          border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.3) : AppColors.textPrimary.withValues(alpha: 0.1)),
                         ),
-                        child: const Text(
+                        child: Text(
                           'VS',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: isDark ? Colors.white : AppColors.textPrimary,
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
                           ),
@@ -126,6 +134,7 @@ class _BattleCard extends ConsumerWidget {
                         votes: battle.votesB,
                         isSelected: myVote == 'B',
                         hasVoted: hasVoted,
+                        isDark: isDark,
                         onTap: hasVoted
                             ? null
                             : () {
@@ -139,7 +148,7 @@ class _BattleCard extends ConsumerWidget {
               ),
 
               // 투표 바 (투표 후 표시)
-              if (hasVoted) _VoteProgressBar(battle: battle),
+              if (hasVoted) _VoteProgressBar(battle: battle, isDark: isDark),
 
               // 총 투표 수
               Padding(
@@ -148,7 +157,7 @@ class _BattleCard extends ConsumerWidget {
                   hasVoted ? '총 ${battle.totalVotes}명 투표 참여' : '투표하고 결과를 확인하세요!',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white.withValues(alpha: 0.4),
+                    color: isDark ? Colors.white.withValues(alpha: 0.4) : AppColors.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.center,
@@ -171,6 +180,7 @@ class _VoteButton extends StatelessWidget {
     required this.votes,
     required this.isSelected,
     required this.hasVoted,
+    required this.isDark,
     required this.onTap,
   });
 
@@ -180,6 +190,7 @@ class _VoteButton extends StatelessWidget {
   final int votes;
   final bool isSelected;
   final bool hasVoted;
+  final bool isDark;
   final VoidCallback? onTap;
 
   @override
@@ -192,9 +203,13 @@ class _VoteButton extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.05),
+          color: isSelected 
+              ? (isDark ? Colors.white.withValues(alpha: 0.15) : AppColors.primary.withValues(alpha: 0.1)) 
+              : (isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.textPrimary.withValues(alpha: 0.02)),
           border: Border.all(
-            color: isSelected ? Colors.white.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.1),
+            color: isSelected 
+                ? (isDark ? Colors.white.withValues(alpha: 0.5) : AppColors.primary.withValues(alpha: 0.5)) 
+                : (isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.textPrimary.withValues(alpha: 0.05)),
             width: isSelected ? 1.5 : 1,
           ),
           borderRadius: BorderRadius.circular(12),
@@ -211,7 +226,9 @@ class _VoteButton extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: isSelected ? Colors.white : Colors.white70,
+                color: isSelected 
+                    ? (isDark ? Colors.white : AppColors.primary) 
+                    : (isDark ? Colors.white70 : AppColors.textPrimary),
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -224,7 +241,7 @@ class _VoteButton extends StatelessWidget {
               menu.dormitory.name,
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.white.withValues(alpha: 0.4),
+                color: isDark ? Colors.white.withValues(alpha: 0.4) : AppColors.textSecondary,
               ),
             ),
 
@@ -236,7 +253,9 @@ class _VoteButton extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w900,
-                  color: isWinning ? Colors.white : Colors.white54,
+                  color: isWinning 
+                      ? (isDark ? Colors.white : AppColors.primary) 
+                      : (isDark ? Colors.white54 : AppColors.textMuted),
                 ),
               ),
             ],
@@ -249,9 +268,10 @@ class _VoteButton extends StatelessWidget {
 
 /// 투표 결과 프로그레스 바
 class _VoteProgressBar extends StatelessWidget {
-  const _VoteProgressBar({required this.battle});
+  const _VoteProgressBar({required this.battle, required this.isDark});
 
   final DormBattle battle;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -266,7 +286,7 @@ class _VoteProgressBar extends StatelessWidget {
               flex: (battle.ratioA * 100).round(),
               child: Container(
                 height: 8,
-                color: Colors.white.withValues(alpha: 0.6),
+                color: isDark ? Colors.white.withValues(alpha: 0.6) : AppColors.primary.withValues(alpha: 0.6),
               ),
             ),
             // B 진영 바
@@ -274,7 +294,7 @@ class _VoteProgressBar extends StatelessWidget {
               flex: (battle.ratioB * 100).round(),
               child: Container(
                 height: 8,
-                color: Colors.white.withValues(alpha: 0.2),
+                color: isDark ? Colors.white.withValues(alpha: 0.2) : AppColors.primary.withValues(alpha: 0.2),
               ),
             ),
           ],
@@ -289,7 +309,8 @@ class _VoteProgressBar extends StatelessWidget {
 // ─────────────────────────────────────────────────────────
 
 class _MenuRankingSection extends ConsumerWidget {
-  const _MenuRankingSection();
+  const _MenuRankingSection({required this.isDark});
+  final bool isDark;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -298,9 +319,10 @@ class _MenuRankingSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _SectionHeader(
+        _SectionHeader(
           title: '🏆 이번 주 메뉴 인기 순위',
-          titleColor: Colors.white,
+          titleColor: isDark ? Colors.white : AppColors.textPrimary,
+          isDark: isDark,
         ),
         const SizedBox(height: 12),
 
@@ -310,7 +332,7 @@ class _MenuRankingSection extends ConsumerWidget {
             children: ranking.asMap().entries.map((entry) {
               final rank = entry.key + 1;
               final menu = entry.value;
-              return _RankingItem(rank: rank, menu: menu, isLast: rank == ranking.length);
+              return _RankingItem(rank: rank, menu: menu, isLast: rank == ranking.length, isDark: isDark);
             }).toList(),
           ),
         ),
@@ -320,11 +342,12 @@ class _MenuRankingSection extends ConsumerWidget {
 }
 
 class _RankingItem extends StatelessWidget {
-  const _RankingItem({required this.rank, required this.menu, required this.isLast});
+  const _RankingItem({required this.rank, required this.menu, required this.isLast, required this.isDark});
 
   final int rank;
   final MenuItem menu;
   final bool isLast;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -333,7 +356,10 @@ class _RankingItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        border: isLast ? null : Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.05), width: 0.5)),
+        border: isLast ? null : Border(bottom: BorderSide(
+          color: isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.textPrimary.withValues(alpha: 0.05), 
+          width: 0.5
+        )),
       ),
       child: Row(
         children: [
@@ -350,7 +376,7 @@ class _RankingItem extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w900,
-                      color: Colors.white.withValues(alpha: 0.4),
+                      color: isDark ? Colors.white.withValues(alpha: 0.4) : AppColors.textMuted,
                     ),
                   ),
           ),
@@ -366,10 +392,10 @@ class _RankingItem extends StatelessWidget {
               children: [
                 Text(
                   menu.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white,
+                    color: isDark ? Colors.white : AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -379,7 +405,7 @@ class _RankingItem extends StatelessWidget {
                       menu.dormitory.name,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.white.withValues(alpha: 0.4),
+                        color: isDark ? Colors.white.withValues(alpha: 0.4) : AppColors.textSecondary,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -392,7 +418,7 @@ class _RankingItem extends StatelessWidget {
                           menu.rating.toStringAsFixed(1),
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.white.withValues(alpha: 0.4),
+                            color: isDark ? Colors.white.withValues(alpha: 0.4) : AppColors.textSecondary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -410,10 +436,10 @@ class _RankingItem extends StatelessWidget {
             children: [
               Text(
                 '${menu.voteCount}표',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                  color: isDark ? Colors.white : AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 6),
@@ -421,6 +447,7 @@ class _RankingItem extends StatelessWidget {
               _MiniVoteBar(
                 count: menu.voteCount,
                 maxCount: 312, // 1위 기준
+                isDark: isDark,
               ),
             ],
           ),
@@ -432,10 +459,11 @@ class _RankingItem extends StatelessWidget {
 
 /// 순위 아이템 옆 미니 투표 바
 class _MiniVoteBar extends StatelessWidget {
-  const _MiniVoteBar({required this.count, required this.maxCount});
+  const _MiniVoteBar({required this.count, required this.maxCount, required this.isDark});
 
   final int count;
   final int maxCount;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -447,7 +475,7 @@ class _MiniVoteBar extends StatelessWidget {
           width: 60,
           height: 4,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
+            color: isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.textPrimary.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -455,7 +483,7 @@ class _MiniVoteBar extends StatelessWidget {
           width: 60 * ratio,
           height: 4,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.4),
+            color: isDark ? Colors.white.withValues(alpha: 0.4) : AppColors.primary.withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -473,11 +501,13 @@ class _SectionHeader extends StatelessWidget {
     required this.title,
     required this.titleColor,
     this.badge,
+    required this.isDark,
   });
 
   final String title;
   final Color titleColor;
   final String? badge;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -496,15 +526,18 @@ class _SectionHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: isDark ? Colors.white.withValues(alpha: 0.2) : AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 0.5),
+              border: Border.all(
+                color: isDark ? Colors.white.withValues(alpha: 0.3) : AppColors.primary.withValues(alpha: 0.2), 
+                width: 0.5
+              ),
             ),
             child: Text(
               badge!,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10,
-                color: Colors.white,
+                color: isDark ? Colors.white : AppColors.primary,
                 fontWeight: FontWeight.w800,
               ),
             ),
