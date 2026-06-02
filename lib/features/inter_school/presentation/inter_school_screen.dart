@@ -32,21 +32,30 @@ class _InterSchoolScreenState extends ConsumerState<InterSchoolScreen>
   @override
   Widget build(BuildContext context) {
     final isAdmin = ref.watch(isAdminProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: const Text('기숙사 네트워크', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w800)),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            '기숙사 네트워크', 
+            style: TextStyle(
+              color: isDark ? Colors.white : Colors.black87, 
+              fontWeight: FontWeight.w900
+            )
+          ),
           bottom: TabBar(
             controller: _tab,
-            labelColor: AppColors.textPrimary,
-            unselectedLabelColor: AppColors.textMuted,
+            labelColor: isDark ? Colors.white : AppColors.primary,
+            unselectedLabelColor: isDark ? AppColors.textMutedDark : AppColors.textSecondary,
             indicatorColor: AppColors.primary,
-            indicatorWeight: 2.5,
-            labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
-            unselectedLabelStyle: const TextStyle(fontSize: 13),
-            tabs: const [Tab(text: '자치회'), Tab(text: '타 학교'), Tab(text: '학교 대항전')],
+            indicatorWeight: 3,
+            labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+            unselectedLabelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            tabs: const [Tab(text: '자치회'), Tab(text: '타 학교'), Tab(text: '대항전')],
           ),
         ),
         body: TabBarView(
@@ -62,33 +71,42 @@ class _InterSchoolScreenState extends ConsumerState<InterSchoolScreen>
   }
 }
 
-// ── 자치회 탭 ─────────────────────────────────────────────────────────
-
 class _CouncilTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notices = ref.watch(councilNoticeProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         GlassContainer(
-          padding: const EdgeInsets.all(16),
-          child: const Row(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Row(
             children: [
-              Icon(Icons.groups, color: AppColors.primary, size: 22),
-              SizedBox(width: 12),
-              Text('기숙사 자치회', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+              const Icon(Icons.groups_rounded, color: AppColors.primary, size: 24),
+              const SizedBox(width: 12),
+              Text(
+                '기숙사 자치회 공지', 
+                style: TextStyle(
+                  fontSize: 16, 
+                  fontWeight: FontWeight.w900, 
+                  color: isDark ? Colors.white : Colors.black87
+                )
+              ),
             ],
           ),
         ),
         const SizedBox(height: 16),
         ...notices.map((n) => _CouncilItem(notice: n)),
         const SizedBox(height: 16),
-        ElevatedButton.icon(
-          onPressed: () {},
-          icon: const Icon(Icons.add, size: 16),
-          label: Text('건의사항 제출'.toUpperCase()),
+        SizedBox(
+          height: 52,
+          child: ElevatedButton.icon(
+            onPressed: () {},
+            icon: const Icon(Icons.edit_note_rounded, size: 20),
+            label: const Text('자치회 건의사항 제출', style: TextStyle(fontWeight: FontWeight.w900)),
+          ),
         ),
       ],
     );
@@ -101,33 +119,46 @@ class _CouncilItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GlassContainer(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.primaryBg,
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 0.5),
+              color: isDark ? AppColors.primary.withValues(alpha: 0.15) : AppColors.primaryBg,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 1),
             ),
-            child: Text(notice.category, style: const TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.w800)),
+            child: Text(
+              notice.category, 
+              style: const TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.w900)
+            ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
-            child: Text(notice.title, style: const TextStyle(fontSize: 13, color: AppColors.textPrimary, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
+            child: Text(
+              notice.title, 
+              style: TextStyle(
+                fontSize: 14, 
+                color: isDark ? Colors.white : Colors.black87, 
+                fontWeight: FontWeight.w700
+              ), 
+              overflow: TextOverflow.ellipsis
+            ),
           ),
           const SizedBox(width: 10),
-          Text(notice.date, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+          Text(
+            notice.date, 
+            style: TextStyle(fontSize: 11, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary)
+          ),
         ],
       ),
     );
   }
 }
-
-// ── 타 학교 탭 ─────────────────────────────────────────────────────────
 
 class _OtherSchoolTab extends ConsumerWidget {
   @override
@@ -137,7 +168,7 @@ class _OtherSchoolTab extends ConsumerWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: schools.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, __) => const SizedBox(height: 14),
       itemBuilder: (ctx, i) => _SchoolCard(school: schools[i]),
     );
   }
@@ -149,34 +180,55 @@ class _SchoolCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final mutedTextColor = isDark ? AppColors.textMutedDark : AppColors.textSecondary;
+    final primaryTextColor = isDark ? Colors.white : Colors.black87;
+
     return GlassContainer(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('${school.schoolName} · ${school.dormName}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
-          const SizedBox(height: 14),
-          const Text('오늘 메뉴', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: 0.5)),
-          const SizedBox(height: 5),
-          Text(school.todayMenus.join(' · '), style: const TextStyle(fontSize: 13, color: AppColors.textPrimary, fontWeight: FontWeight.w500)),
-          const SizedBox(height: 10),
-          const Text('인기 메뉴', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: 0.5)),
-          const SizedBox(height: 5),
-          Text(school.popularMenus.join(', '), style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
-          const SizedBox(height: 14),
-          Row(
+          Text(
+            '${school.schoolName} · ${school.dormName}', 
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: primaryTextColor)
+          ),
+          const SizedBox(height: 16),
+          _InfoSection(label: '오늘 메뉴', value: school.todayMenus.join(' · '), color: primaryTextColor, labelColor: mutedTextColor),
+          const SizedBox(height: 12),
+          _InfoSection(label: '인기 메뉴', value: school.popularMenus.join(', '), color: mutedTextColor, labelColor: mutedTextColor),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
             children: [
-              _FacilityChip(icon: Icons.fitness_center, label: '머신 ${school.gymMachineCount}대'),
-              const SizedBox(width: 8),
-              _FacilityChip(icon: Icons.local_laundry_service, label: '세탁기 ${school.laundryCount}대'),
-              if (school.hasPool) ...[
-                const SizedBox(width: 8),
-                const _FacilityChip(icon: Icons.pool, label: '수영장'),
-              ],
+              _FacilityChip(icon: Icons.fitness_center_rounded, label: '머신 ${school.gymMachineCount}대'),
+              _FacilityChip(icon: Icons.local_laundry_service_rounded, label: '세탁기 ${school.laundryCount}대'),
+              if (school.hasPool) const _FacilityChip(icon: Icons.pool_rounded, label: '수영장'),
             ],
           ),
         ],
       ),
+    );
+  }
+}
+
+class _InfoSection extends StatelessWidget {
+  const _InfoSection({required this.label, required this.value, required this.color, required this.labelColor});
+  final String label;
+  final String value;
+  final Color color;
+  final Color labelColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: labelColor, letterSpacing: 1.0)),
+        const SizedBox(height: 4),
+        Text(value, style: TextStyle(fontSize: 13, color: color, fontWeight: FontWeight.w600)),
+      ],
     );
   }
 }
@@ -188,26 +240,25 @@ class _FacilityChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.bgElevated,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.borderLight, width: 0.5),
+        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white.withValues(alpha: 0.8), width: 1.0),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: AppColors.textSecondary),
-          const SizedBox(width: 5),
-          Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+          Icon(icon, size: 14, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
+          const SizedBox(width: 6),
+          Text(label, style: TextStyle(fontSize: 12, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary, fontWeight: FontWeight.w700)),
         ],
       ),
     );
   }
 }
-
-// ── 학교 대항전 탭 ─────────────────────────────────────────────────────
 
 class _MatchTab extends ConsumerWidget {
   const _MatchTab({required this.isAdmin});
@@ -216,25 +267,26 @@ class _MatchTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final matches = ref.watch(matchProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: matches.isEmpty
-          ? const Center(child: Text('예정된 대항전이 없습니다', style: TextStyle(color: AppColors.textMuted, fontSize: 14)))
+          ? Center(child: Text('진행 중인 대항전이 없습니다', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textSecondary, fontSize: 14, fontWeight: FontWeight.w600)))
           : ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: matches.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              separatorBuilder: (_, __) => const SizedBox(height: 14),
               itemBuilder: (ctx, i) => _MatchCard(match: matches[i]),
             ),
       floatingActionButton: isAdmin
           ? FloatingActionButton(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
-              elevation: 2,
+              elevation: 4,
               shape: const CircleBorder(),
               onPressed: () => _showCreateSheet(context, ref),
-              child: const Icon(Icons.add),
+              child: const Icon(Icons.add_rounded, size: 28),
             )
           : null,
     );
@@ -258,70 +310,95 @@ class _MatchCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final notifier = ref.read(matchProvider.notifier);
     final hasApplied = notifier.hasApplied(match.id);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryTextColor = isDark ? Colors.white : Colors.black87;
 
     final (statusLabel, statusColor, statusBg) = switch (match.status) {
-      MatchStatus.recruiting => ('모집중', AppColors.available,   AppColors.primaryBg),
-      MatchStatus.scheduled  => ('확정',  AppColors.info,         const Color(0xFFEFF5FF)),
-      MatchStatus.completed  => ('종료',  AppColors.textMuted,    AppColors.bgElevated),
+      MatchStatus.recruiting => ('참가모집', AppColors.available,   isDark ? AppColors.available.withValues(alpha: 0.15) : AppColors.primaryBg),
+      MatchStatus.scheduled  => ('확정예정',  AppColors.info,         isDark ? AppColors.info.withValues(alpha: 0.15) : const Color(0xFFF0F7FF)),
+      MatchStatus.completed  => ('종료됨',  AppColors.textMuted,    isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.bgElevated),
     };
 
     return GlassContainer(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(match.sport, style: const TextStyle(fontSize: 18)),
-              const SizedBox(width: 10),
+              Text(match.sport, style: const TextStyle(fontSize: 20)),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: statusBg,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: statusColor.withValues(alpha: 0.3), width: 0.5),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: statusColor.withValues(alpha: 0.3), width: 1.0),
                 ),
-                child: Text(statusLabel, style: TextStyle(fontSize: 11, color: statusColor, fontWeight: FontWeight.w800)),
+                child: Text(statusLabel, style: TextStyle(fontSize: 11, color: statusColor, fontWeight: FontWeight.w900)),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(match.hostSchool, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Text('VS', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: AppColors.textMuted)),
+              Expanded(
+                child: Column(
+                  children: [
+                    Text(match.hostSchool, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: primaryTextColor)),
+                    const SizedBox(height: 4),
+                    const Text('우리 학교', style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                  ],
+                ),
               ),
-              Text(match.guestSchool, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text('VS', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary.withValues(alpha: 0.5))),
+              ),
+              Expanded(
+                child: Column(
+                  children: [
+                    Text(match.guestSchool, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: primaryTextColor)),
+                    const SizedBox(height: 4),
+                    const Text('상대 학교', style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                  ],
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '${match.scheduledAt.month}/${match.scheduledAt.day} · ${match.applicants}/${match.maxPlayers}명',
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${match.scheduledAt.month}월 ${match.scheduledAt.day}일 예정',
+                    style: TextStyle(fontSize: 13, color: primaryTextColor, fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '현재 ${match.applicants}명 / 정원 ${match.maxPlayers}명',
+                    style: TextStyle(fontSize: 12, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary),
+                  ),
+                ],
               ),
               if (match.status == MatchStatus.recruiting && !match.isFull)
-                GestureDetector(
-                  onTap: hasApplied ? null : () {
-                    notifier.apply(match.id);
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('참가 신청 완료!')));
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                    decoration: BoxDecoration(
-                      color: hasApplied ? AppColors.bgElevated : AppColors.primary,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: hasApplied ? AppColors.borderLight : AppColors.primary),
+                SizedBox(
+                  height: 40,
+                  child: ElevatedButton(
+                    onPressed: hasApplied ? null : () {
+                      notifier.apply(match.id);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('참가 신청이 완료되었습니다!')));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: hasApplied ? (isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.bgElevated) : AppColors.primary,
+                      foregroundColor: hasApplied ? AppColors.textMuted : Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      elevation: 0,
                     ),
-                    child: Text(
-                      hasApplied ? '신청완료' : '참가 신청',
-                      style: TextStyle(fontSize: 12, color: hasApplied ? AppColors.textMuted : Colors.white, fontWeight: FontWeight.w700),
-                    ),
+                    child: Text(hasApplied ? '신청완료' : '참가신청', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
                   ),
                 ),
             ],
@@ -331,8 +408,6 @@ class _MatchCard extends ConsumerWidget {
     );
   }
 }
-
-// ── 대항전 등록 시트 ───────────────────────────────────────────────────
 
 class _CreateMatchSheet extends StatefulWidget {
   const _CreateMatchSheet({required this.ref});
@@ -354,33 +429,22 @@ class _CreateMatchSheetState extends State<_CreateMatchSheet> {
     super.dispose();
   }
 
-  void _submit() {
-    final guest = _guestController.text.trim();
-    if (guest.isEmpty) return;
-    widget.ref.read(matchProvider.notifier).addMatch(InterSchoolMatch(
-      id: 'm_${DateTime.now().millisecondsSinceEpoch}',
-      sport: _sport,
-      hostSchool: '우리 학교',
-      guestSchool: guest,
-      scheduledAt: DateTime.now().add(const Duration(days: 14)),
-      status: MatchStatus.recruiting,
-      applicants: 0,
-      maxPlayers: _maxPlayers,
-    ));
-    Navigator.pop(context);
-  }
-
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark ? Colors.white : Colors.black87;
+
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.bgSurface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border(top: BorderSide(color: AppColors.borderLight, width: 0.5)),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.bgSurfaceDark : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: isDark ? 0.5 : 0.1), blurRadius: 40, offset: const Offset(0, -10)),
+        ],
       ),
       padding: EdgeInsets.only(
-        left: 24, right: 24, top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 28,
+        left: 24, right: 24, top: 12,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 32,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -388,48 +452,100 @@ class _CreateMatchSheetState extends State<_CreateMatchSheet> {
         children: [
           Center(
             child: Container(
-              width: 36, height: 4,
-              decoration: BoxDecoration(color: AppColors.borderLight, borderRadius: BorderRadius.circular(2)),
+              width: 40, height: 4,
+              decoration: BoxDecoration(color: isDark ? Colors.white24 : Colors.black12, borderRadius: BorderRadius.circular(2)),
             ),
           ),
+          const SizedBox(height: 24),
+          Text('새로운 대항전 등록', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: primaryColor)),
           const SizedBox(height: 20),
-          const Text('대항전 공고 등록', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
-          const SizedBox(height: 16),
-          const Text('종목', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: 0.5)),
-          const SizedBox(height: 10),
+          Text('종목 선택', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary, letterSpacing: 1.0)),
+          const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: _sports.map((s) => GestureDetector(
               onTap: () => setState(() => _sport = s),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: _sport == s ? AppColors.primaryBg : AppColors.bgElevated,
-                  border: Border.all(color: _sport == s ? AppColors.primary.withValues(alpha: 0.5) : AppColors.borderLight),
-                  borderRadius: BorderRadius.circular(20),
+                  color: _sport == s ? AppColors.primary : (isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.bgElevated),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: _sport == s ? AppColors.primary : Colors.transparent),
                 ),
-                child: Text(s, style: TextStyle(fontSize: 13, color: _sport == s ? AppColors.primary : AppColors.textSecondary, fontWeight: _sport == s ? FontWeight.w700 : FontWeight.w500)),
+                child: Text(s, style: TextStyle(fontSize: 13, color: _sport == s ? Colors.white : (isDark ? AppColors.textSecondaryDark : AppColors.textPrimary), fontWeight: FontWeight.w900)),
               ),
             )).toList(),
           ),
-          const SizedBox(height: 20),
-          const Text('상대 학교', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: 0.5)),
-          const SizedBox(height: 8),
-          TextField(controller: _guestController, decoration: const InputDecoration(hintText: '예: 연세대학교')),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
+          Text('상대 학교명', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary, letterSpacing: 1.0)),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _guestController, 
+            decoration: const InputDecoration(hintText: '예: 한국대학교 (캠퍼스명)'),
+            style: TextStyle(color: primaryColor, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 24),
           Row(
             children: [
-              const Text('모집 인원', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+              Text('모집 인원 (정원)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: primaryColor)),
               const Spacer(),
-              IconButton(onPressed: () { if (_maxPlayers > 2) setState(() => _maxPlayers--); }, icon: const Icon(Icons.remove_circle_outline, size: 22, color: AppColors.textMuted)),
-              Text('$_maxPlayers명', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
-              IconButton(onPressed: () => setState(() => _maxPlayers++), icon: const Icon(Icons.add_circle_outline, size: 22, color: AppColors.primary)),
+              _CounterButton(icon: Icons.remove_rounded, onTap: () { if (_maxPlayers > 1) setState(() => _maxPlayers--); }),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text('$_maxPlayers명', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: primaryColor)),
+              ),
+              _CounterButton(icon: Icons.add_rounded, onTap: () => setState(() => _maxPlayers++), color: AppColors.primary),
             ],
           ),
-          const SizedBox(height: 20),
-          SizedBox(width: double.infinity, height: 50, child: ElevatedButton(onPressed: _submit, child: Text('공고 등록'.toUpperCase()))),
+          const SizedBox(height: 32),
+          SizedBox(
+            width: double.infinity, 
+            height: 56, 
+            child: ElevatedButton(
+              onPressed: () {
+                final guest = _guestController.text.trim();
+                if (guest.isEmpty) return;
+                widget.ref.read(matchProvider.notifier).addMatch(InterSchoolMatch(
+                  id: 'm_${DateTime.now().millisecondsSinceEpoch}',
+                  sport: _sport,
+                  hostSchool: '우리 학교',
+                  guestSchool: guest,
+                  scheduledAt: DateTime.now().add(const Duration(days: 14)),
+                  status: MatchStatus.recruiting,
+                  applicants: 0,
+                  maxPlayers: _maxPlayers,
+                ));
+                Navigator.pop(context);
+              }, 
+              child: const Text('대항전 공고 올리기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900))
+            )
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class _CounterButton extends StatelessWidget {
+  const _CounterButton({required this.icon, required this.onTap, this.color});
+  final IconData icon;
+  final VoidCallback onTap;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 32, height: 32,
+        decoration: BoxDecoration(
+          color: color?.withValues(alpha: 0.1) ?? (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05)),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 20, color: color ?? (isDark ? Colors.white60 : Colors.black45)),
       ),
     );
   }

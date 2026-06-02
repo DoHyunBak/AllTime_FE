@@ -72,6 +72,8 @@ class _GreetingHero extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final now = DateTime.now();
     const weekdays = ['월', '화', '수', '목', '금', '토', '일'];
     final dateStr = '${now.month}월 ${now.day}일 (${weekdays[now.weekday - 1]})';
@@ -89,15 +91,15 @@ class _GreetingHero extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(dateStr, style: const TextStyle(fontSize: 12, color: AppColors.textMuted, fontWeight: FontWeight.w600)),
+                    Text(dateStr, style: TextStyle(fontSize: 12, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 4),
                     Text(
                       user != null ? '${user.name}님, 안녕하세요 👋' : '안녕하세요 👋',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimary),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: isDark ? Colors.white : AppColors.textPrimary),
                     ),
                     if (user != null) ...[
                       const SizedBox(height: 2),
-                      Text('${user.school} · ${user.dormitory}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                      Text('${user.school} · ${user.dormitory}', style: TextStyle(fontSize: 12, color: isDark ? Colors.white70 : AppColors.textSecondary)),
                     ],
                   ],
                 ),
@@ -125,9 +127,9 @@ class _GreetingHero extends ConsumerWidget {
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Text(urgent.title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary), overflow: TextOverflow.ellipsis),
+                      child: Text(urgent.title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: isDark ? Colors.white : AppColors.textPrimary), overflow: TextOverflow.ellipsis),
                     ),
-                    const Icon(Icons.chevron_right, size: 18, color: AppColors.textMuted),
+                    const Icon(Icons.chevron_right, size: 18, color: AppColors.textSecondary),
                   ],
                 ),
               ),
@@ -148,6 +150,7 @@ class _DormStatusBoard extends ConsumerWidget {
     final dryers = ref.watch(dryersProvider);
     final gym = ref.watch(gymProvider);
     final menus = ref.watch(cafeteriaMenuProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final washAvail = washers.where((m) => m.status == MachineStatus.available).length;
     final dryAvail = dryers.where((m) => m.status == MachineStatus.available).length;
@@ -167,11 +170,11 @@ class _DormStatusBoard extends ConsumerWidget {
             children: [
               const Icon(Icons.dashboard_customize_outlined, size: 16, color: AppColors.primary),
               const SizedBox(width: 6),
-              const Text('기숙사 현황', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+              Text('기숙사 현황', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: isDark ? Colors.white : AppColors.textPrimary)),
               const Spacer(),
               GestureDetector(
                 onTap: () => context.go('/facility'),
-                child: const Text('시설 전체', style: TextStyle(fontSize: 12, color: AppColors.textMuted, fontWeight: FontWeight.w500)),
+                child: Text('시설 전체', style: TextStyle(fontSize: 12, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary, fontWeight: FontWeight.w500)),
               ),
             ],
           ),
@@ -188,7 +191,7 @@ class _DormStatusBoard extends ConsumerWidget {
             children: [
               _StatusTile(icon: Icons.fitness_center, label: '헬스장', value: gym.label, sub: '${gym.occupancy}/${gym.capacity}명', color: gymColor),
               const SizedBox(width: 10),
-              _StatusTile(icon: Icons.restaurant, label: '오늘 점심', value: '${lunch.nutrition.kcal}kcal', sub: lunch.items.first, color: AppColors.textSecondary),
+              _StatusTile(icon: Icons.restaurant, label: '오늘 점심', value: '${lunch.nutrition.kcal}kcal', sub: lunch.items.first, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
             ],
           ),
         ],
@@ -207,13 +210,14 @@ class _StatusTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.45),
+          color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.6), width: 0.5),
+          border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.6), width: 0.5),
         ),
         child: Row(
           children: [
@@ -227,10 +231,10 @@ class _StatusTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textMuted, fontWeight: FontWeight.w600)),
+                  Text(label, style: TextStyle(fontSize: 10, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 1),
                   Text(value, style: TextStyle(fontSize: 14, color: color, fontWeight: FontWeight.w900), overflow: TextOverflow.ellipsis),
-                  Text(sub, style: const TextStyle(fontSize: 9, color: AppColors.textMuted), overflow: TextOverflow.ellipsis),
+                  Text(sub, style: TextStyle(fontSize: 9, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary), overflow: TextOverflow.ellipsis),
                 ],
               ),
             ),
@@ -268,6 +272,7 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -278,7 +283,7 @@ class _ActionButton extends StatelessWidget {
             children: [
               Icon(icon, size: 22, color: AppColors.primary),
               const SizedBox(height: 6),
-              Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+              Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: isDark ? Colors.white : AppColors.textPrimary)),
             ],
           ),
         ),
@@ -294,6 +299,7 @@ class _ActiveSurveyTeaser extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final survey = ref.watch(surveyProvider).where((s) => !s.isExpired).firstOrNull;
     if (survey == null) return const SizedBox.shrink();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
       onTap: () => context.go('/survey'),
@@ -314,17 +320,17 @@ class _ActiveSurveyTeaser extends ConsumerWidget {
                     children: [
                       const Text('진행 중 설문', style: TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w800)),
                       const SizedBox(width: 6),
-                      Text('D-${survey.expiresAt.difference(DateTime.now()).inDays}', style: const TextStyle(fontSize: 11, color: AppColors.textMuted, fontWeight: FontWeight.w700)),
+                      Text('D-${survey.expiresAt.difference(DateTime.now()).inDays}', style: TextStyle(fontSize: 11, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary, fontWeight: FontWeight.w700)),
                     ],
                   ),
                   const SizedBox(height: 3),
-                  Text(survey.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary), overflow: TextOverflow.ellipsis),
+                  Text(survey.title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: isDark ? Colors.white : AppColors.textPrimary), overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 2),
-                  Text('추첨 1명 · ${survey.prize}', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary), overflow: TextOverflow.ellipsis),
+                  Text('추첨 1명 · ${survey.prize}', style: TextStyle(fontSize: 11, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary), overflow: TextOverflow.ellipsis),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.textMuted, size: 20),
+            const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
           ],
         ),
       ),
@@ -381,13 +387,14 @@ class _SectionHeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+        Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: isDark ? Colors.white : AppColors.textPrimary)),
         GestureDetector(
           onTap: onMore,
-          child: const Text('더보기', style: TextStyle(fontSize: 12, color: AppColors.textMuted, fontWeight: FontWeight.w500)),
+          child: Text('더보기', style: TextStyle(fontSize: 12, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary, fontWeight: FontWeight.w500)),
         ),
       ],
     );
@@ -403,6 +410,7 @@ class _LineItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: () => context.push('/post/$id'),
       child: Padding(
@@ -421,13 +429,14 @@ class _LineItem extends StatelessWidget {
                 child: const Text('필독', style: TextStyle(fontSize: 9, color: AppColors.error, fontWeight: FontWeight.w800)),
               ),
             Expanded(
-              child: Text(title, style: const TextStyle(fontSize: 13, color: AppColors.textPrimary), overflow: TextOverflow.ellipsis),
+              child: Text(title, style: TextStyle(fontSize: 13, color: isDark ? Colors.white : AppColors.textPrimary), overflow: TextOverflow.ellipsis),
             ),
             const SizedBox(width: 8),
-            Text(date, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+            Text(date, style: TextStyle(fontSize: 11, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary)),
           ],
         ),
       ),
     );
   }
 }
+

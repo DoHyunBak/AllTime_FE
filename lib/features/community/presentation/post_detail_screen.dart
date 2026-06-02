@@ -87,16 +87,19 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     final comments = ref.watch(postCommentsProvider(widget.postId));
     final isLiked = likeState.isLiked(widget.postId);
     final likeCount = likeState.likeCount(widget.postId);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+            icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : AppColors.textPrimary),
             onPressed: () => context.pop(),
           ),
-          title: const Text('게시글', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w800)),
+          title: Text('게시글', style: TextStyle(color: isDark ? Colors.white : AppColors.textPrimary, fontWeight: FontWeight.w800)),
         ),
         body: Column(
           children: [
@@ -114,7 +117,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: AppColors.primaryBg,
+                              color: isDark ? AppColors.primary.withValues(alpha: 0.15) : AppColors.primaryBg,
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 0.5),
                             ),
@@ -122,35 +125,35 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                           ),
                           const SizedBox(height: 12),
                         ],
-                        Text(post.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                        Text(post.title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: isDark ? Colors.white : AppColors.textPrimary)),
                         const SizedBox(height: 12),
                         Row(
                           children: [
                             Container(
                               width: 32, height: 32,
-                              decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.bgElevated),
+                              decoration: BoxDecoration(shape: BoxShape.circle, color: isDark ? AppColors.bgElevatedDark : AppColors.bgElevated),
                               child: const Icon(Icons.person, size: 16, color: AppColors.textMuted),
                             ),
                             const SizedBox(width: 10),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(post.author, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
-                                Text(post.date, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                                Text(post.author, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: isDark ? Colors.white : AppColors.textPrimary)),
+                                Text(post.date, style: TextStyle(fontSize: 11, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary)),
                               ],
                             ),
                             const Spacer(),
-                            const Icon(Icons.visibility_outlined, size: 13, color: AppColors.textMuted),
+                            Icon(Icons.visibility_outlined, size: 13, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary),
                             const SizedBox(width: 3),
-                            Text('${post.viewCount}', style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                            Text('${post.viewCount}', style: TextStyle(fontSize: 12, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary)),
                           ],
                         ),
                         const SizedBox(height: 20),
-                        const Divider(color: AppColors.borderLight, height: 1),
+                        Divider(color: isDark ? AppColors.borderDark : Colors.black.withValues(alpha: 0.05), height: 1),
                         const SizedBox(height: 20),
                         Text(
                           '이곳은 상세 게시글 데모 화면입니다.\n실제 서버와 연결되면 여기에 본문 내용이 표시됩니다.\n\n기숙사 생활에 필요한 다양한 정보를 자유롭게 나눠보세요.',
-                          style: const TextStyle(fontSize: 14, height: 1.7, color: AppColors.textSecondary),
+                          style: TextStyle(fontSize: 14, height: 1.7, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
                         ),
                         const SizedBox(height: 24),
                         Row(
@@ -180,17 +183,17 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                           padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
                           child: Row(
                             children: [
-                              const Icon(Icons.chat_bubble_outline, size: 15, color: AppColors.textSecondary),
+                              Icon(Icons.chat_bubble_outline, size: 15, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
                               const SizedBox(width: 6),
-                              Text('댓글 ${comments.length}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                              Text('댓글 ${comments.length}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: isDark ? Colors.white : AppColors.textPrimary)),
                             ],
                           ),
                         ),
-                        const Divider(color: AppColors.borderLight, height: 1),
+                        Divider(color: isDark ? AppColors.borderDark : Colors.black.withValues(alpha: 0.05), height: 1),
                         if (comments.isEmpty)
-                          const Padding(
-                            padding: EdgeInsets.all(20),
-                            child: Text('첫 번째 댓글을 남겨보세요!', style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
+                          Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Text('첫 번째 댓글을 남겨보세요!', style: TextStyle(fontSize: 13, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary)),
                           )
                         else
                           ...comments.asMap().entries.map((entry) => _CommentItem(
@@ -208,9 +211,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
 
             // ── 댓글 입력창 ──────────────────────────────────────
             Container(
-              decoration: const BoxDecoration(
-                color: AppColors.bgSurface,
-                border: Border(top: BorderSide(color: AppColors.borderLight, width: 0.5)),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.bgSurfaceDark.withValues(alpha: 0.9) : Colors.white.withValues(alpha: 0.85),
+                border: Border(top: BorderSide(color: isDark ? AppColors.borderDark : Colors.black.withValues(alpha: 0.05), width: 0.5)),
               ),
               padding: EdgeInsets.only(
                 left: 16, right: 12, top: 10,
@@ -220,23 +223,23 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 children: [
                   Container(
                     width: 32, height: 32,
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.bgElevated),
-                    child: const Icon(Icons.person, size: 16, color: AppColors.textMuted),
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: isDark ? AppColors.bgElevatedDark : AppColors.bgElevated),
+                    child: const Icon(Icons.person, size: 16, color: AppColors.textSecondary),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: TextField(
                       controller: _commentController,
-                      style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
+                      style: TextStyle(fontSize: 14, color: isDark ? Colors.white : AppColors.textPrimary),
                       maxLines: null,
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => _submitComment(),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: '댓글을 입력하세요...',
-                        hintStyle: TextStyle(fontSize: 14, color: AppColors.textMuted),
+                        hintStyle: TextStyle(fontSize: 14, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary),
                         border: InputBorder.none,
                         isDense: true,
-                        contentPadding: EdgeInsets.symmetric(vertical: 6),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 6),
                         fillColor: Colors.transparent,
                       ),
                     ),
@@ -248,7 +251,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                       width: 34, height: 34,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: _isSubmitting ? AppColors.bgElevated : AppColors.primary,
+                        color: _isSubmitting ? (isDark ? AppColors.bgElevatedDark : AppColors.bgElevated) : AppColors.primary,
                       ),
                       child: _isSubmitting
                           ? const Padding(
@@ -276,15 +279,18 @@ class _LikeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isLiked ? AppColors.primaryBg : AppColors.bgElevated,
+          color: isLiked 
+              ? (isDark ? AppColors.primary.withValues(alpha: 0.15) : AppColors.primaryBg) 
+              : (isDark ? AppColors.bgElevatedDark : Colors.white.withValues(alpha: 0.2)),
           borderRadius: BorderRadius.circular(500),
-          border: Border.all(color: isLiked ? AppColors.primary.withValues(alpha: 0.5) : AppColors.borderLight),
+          border: Border.all(color: isLiked ? AppColors.primary.withValues(alpha: 0.5) : (isDark ? AppColors.borderDark : Colors.white.withValues(alpha: 0.6))),
         ),
         child: Row(
           children: [
@@ -295,7 +301,7 @@ class _LikeButton extends StatelessWidget {
                 isLiked ? Icons.favorite : Icons.favorite_border,
                 key: ValueKey(isLiked),
                 size: 16,
-                color: isLiked ? AppColors.primary : AppColors.textSecondary,
+                color: isLiked ? AppColors.primary : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
               ),
             ),
             const SizedBox(width: 6),
@@ -304,7 +310,7 @@ class _LikeButton extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: isLiked ? AppColors.primary : AppColors.textSecondary,
+                color: isLiked ? AppColors.primary : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
               ),
               child: Text('추천 $count'),
             ),
@@ -322,18 +328,19 @@ class _InfoChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.bgElevated,
+        color: isDark ? AppColors.bgElevatedDark : Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(500),
-        border: Border.all(color: AppColors.borderLight),
+        border: Border.all(color: isDark ? AppColors.borderDark : Colors.white.withValues(alpha: 0.6)),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 15, color: AppColors.textSecondary),
+          Icon(icon, size: 15, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
           const SizedBox(width: 6),
-          Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+          Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary)),
         ],
       ),
     );
@@ -348,18 +355,19 @@ class _CommentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        border: isLast ? null : const Border(bottom: BorderSide(color: AppColors.borderLight, width: 0.5)),
+        border: isLast ? null : Border(bottom: BorderSide(color: isDark ? AppColors.borderDark : Colors.black.withValues(alpha: 0.05), width: 0.5)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 28, height: 28,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.bgElevated),
-            child: const Icon(Icons.person, size: 14, color: AppColors.textMuted),
+            decoration: BoxDecoration(shape: BoxShape.circle, color: isDark ? AppColors.bgElevatedDark : AppColors.bgElevated),
+            child: const Icon(Icons.person, size: 14, color: AppColors.textSecondary),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -368,13 +376,13 @@ class _CommentItem extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(comment.author, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                    Text(comment.author, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isDark ? Colors.white : AppColors.textPrimary)),
                     const SizedBox(width: 8),
-                    Text(comment.date, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                    Text(comment.date, style: TextStyle(fontSize: 11, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary)),
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(comment.content, style: const TextStyle(fontSize: 13, height: 1.5, color: AppColors.textSecondary)),
+                Text(comment.content, style: TextStyle(fontSize: 13, height: 1.5, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary)),
               ],
             ),
           ),
@@ -382,7 +390,7 @@ class _CommentItem extends StatelessWidget {
             onTap: onDelete,
             child: const Padding(
               padding: EdgeInsets.only(left: 8),
-              child: Icon(Icons.close, size: 14, color: AppColors.textMuted),
+              child: Icon(Icons.close, size: 14, color: AppColors.textSecondary),
             ),
           ),
         ],
@@ -390,3 +398,4 @@ class _CommentItem extends StatelessWidget {
     );
   }
 }
+

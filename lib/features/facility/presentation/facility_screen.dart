@@ -10,6 +10,7 @@ class FacilityScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: ListView(
@@ -24,21 +25,21 @@ class FacilityScreen extends ConsumerWidget {
                 children: [
                   Container(
                     width: 36, height: 36,
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.primaryBg),
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: isDark ? AppColors.primary.withValues(alpha: 0.15) : AppColors.primaryBg),
                     child: const Icon(Icons.event_note_outlined, size: 18, color: AppColors.primary),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('예약 내역', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
-                        SizedBox(height: 2),
-                        Text('나의 시설 예약 현황 확인', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                        Text('예약 내역', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: isDark ? Colors.white : AppColors.textPrimary)),
+                        const SizedBox(height: 2),
+                        Text('나의 시설 예약 현황 확인', style: TextStyle(fontSize: 11, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary)),
                       ],
                     ),
                   ),
-                  const Icon(Icons.chevron_right, color: AppColors.textMuted, size: 20),
+                  const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
                 ],
               ),
             ),
@@ -65,13 +66,14 @@ class _LaundrySection extends ConsumerWidget {
     final dryers = ref.watch(dryersProvider);
     final washAvail = washers.where((m) => m.status == MachineStatus.available).length;
     final dryAvail = dryers.where((m) => m.status == MachineStatus.available).length;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return _Card(
       title: '세탁실',
       icon: Icons.local_laundry_service,
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        decoration: BoxDecoration(color: AppColors.primaryBg, borderRadius: BorderRadius.circular(500)),
+        decoration: BoxDecoration(color: isDark ? AppColors.primary.withValues(alpha: 0.15) : AppColors.primaryBg, borderRadius: BorderRadius.circular(500)),
         child: Text('세탁 $washAvail · 건조 $dryAvail 가능',
             style: const TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w700)),
       ),
@@ -95,14 +97,15 @@ class _MachineGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Icon(icon, size: 14, color: AppColors.textSecondary),
+            Icon(icon, size: 14, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
             const SizedBox(width: 6),
-            Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+            Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary)),
           ],
         ),
         const SizedBox(height: 8),
@@ -127,10 +130,11 @@ class _MachineChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final (color, bgColor, label) = switch (machine.status) {
-      MachineStatus.available  => (AppColors.available, AppColors.primaryBg, '사용가능'),
-      MachineStatus.running    => (AppColors.running, const Color(0xFFEFF5FF), machine.remainingMinutes != null ? '${machine.remainingMinutes}분' : '사용중'),
-      MachineStatus.outOfOrder => (AppColors.outOfOrder, const Color(0xFFFFF0F0), '점검중'),
+      MachineStatus.available  => (AppColors.available, isDark ? AppColors.available.withValues(alpha: 0.1) : AppColors.primaryBg, '사용가능'),
+      MachineStatus.running    => (AppColors.running, isDark ? AppColors.running.withValues(alpha: 0.1) : const Color(0xFFEFF5FF), machine.remainingMinutes != null ? '${machine.remainingMinutes}분' : '사용중'),
+      MachineStatus.outOfOrder => (AppColors.outOfOrder, isDark ? AppColors.outOfOrder.withValues(alpha: 0.1) : const Color(0xFFFFF0F0), '점검중'),
     };
 
     return Container(
@@ -158,11 +162,12 @@ class _GymSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final gym = ref.watch(gymProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final (statusColor, statusBg) = switch (gym.label) {
-      '여유'   => (AppColors.available, AppColors.primaryBg),
-      '보통'   => (AppColors.warning,   const Color(0xFFFFF8E8)),
-      _        => (AppColors.outOfOrder, const Color(0xFFFFF0F0)),
+      '여유'   => (AppColors.available, isDark ? AppColors.available.withValues(alpha: 0.15) : AppColors.primaryBg),
+      '보통'   => (AppColors.warning,   isDark ? AppColors.warning.withValues(alpha: 0.15) : const Color(0xFFFFF8E8)),
+      _        => (AppColors.outOfOrder, isDark ? AppColors.error.withValues(alpha: 0.15) : const Color(0xFFFFF0F0)),
     };
 
     return _Card(
@@ -181,10 +186,10 @@ class _GymSection extends ConsumerWidget {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text('${gym.occupancy}', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: statusColor)),
-              const Text(' 명', style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+              Text(' 명', style: TextStyle(fontSize: 13, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary, fontWeight: FontWeight.w600)),
               const Spacer(),
               Text('최대 ${gym.capacity}명 · 이용률 ${(gym.ratio * 100).round()}%',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                  style: TextStyle(fontSize: 12, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary)),
             ],
           ),
           const SizedBox(height: 10),
@@ -193,12 +198,12 @@ class _GymSection extends ConsumerWidget {
             child: LinearProgressIndicator(
               value: gym.ratio.clamp(0.0, 1.0),
               minHeight: 8,
-              backgroundColor: AppColors.bgElevated,
+              backgroundColor: isDark ? AppColors.bgElevatedDark : Colors.black.withValues(alpha: 0.05),
               valueColor: AlwaysStoppedAnimation<Color>(statusColor),
             ),
           ),
           const SizedBox(height: 8),
-          const Text('운영시간: 06:00 ~ 23:00', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+          Text('운영시간: 06:00 ~ 23:00', style: TextStyle(fontSize: 11, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary)),
         ],
       ),
     );
@@ -229,13 +234,14 @@ class _MenuRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final n = menu.nutrition;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.bgElevated,
+        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borderLight, width: 0.5),
+        border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white.withValues(alpha: 0.6), width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,16 +251,16 @@ class _MenuRow extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text(menu.mealType, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                  Text(menu.mealType, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: isDark ? Colors.white : AppColors.textPrimary)),
                   const SizedBox(width: 8),
-                  Text('${n.kcal} kcal', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                  Text('${n.kcal} kcal', style: TextStyle(fontSize: 12, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary, fontWeight: FontWeight.w600)),
                 ],
               ),
               Text('${menu.price}원', style: const TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.w700)),
             ],
           ),
           const SizedBox(height: 6),
-          Text(menu.items.join(' · '), style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+          Text(menu.items.join(' · '), style: TextStyle(fontSize: 13, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary)),
           const SizedBox(height: 14),
           // 영양성분
           Row(
@@ -279,19 +285,20 @@ class _NutrientChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.bgSurface,
+          color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColors.borderLight, width: 0.5),
+          border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.6), width: 0.5),
         ),
         child: Column(
           children: [
-            Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textMuted, fontWeight: FontWeight.w600)),
+            Text(label, style: TextStyle(fontSize: 10, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary, fontWeight: FontWeight.w600)),
             const SizedBox(height: 2),
-            Text(value, style: const TextStyle(fontSize: 13, color: AppColors.textPrimary, fontWeight: FontWeight.w800)),
+            Text(value, style: TextStyle(fontSize: 13, color: isDark ? Colors.white : AppColors.textPrimary, fontWeight: FontWeight.w800)),
           ],
         ),
       ),

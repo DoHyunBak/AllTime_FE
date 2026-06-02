@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
 
-/// 배경이 흰색일 때도 가독성을 유지하는 글래스모피즘 카드.
+/// 고도의 투명도와 강한 백드롭 블러를 가진 고품질 글래스 카드.
+/// 밝은 배경 위에서 부드러운 그림자와 미세한 흰색 테두리로 입체감을 줍니다.
 class GlassCard extends StatelessWidget {
   const GlassCard({
     super.key,
@@ -29,82 +29,59 @@ class GlassCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final radius = BorderRadius.circular(borderRadius);
 
-    return RepaintBoundary(
-      child: Container(
-        width: isFullWidth ? double.infinity : width,
-        height: height,
-        margin: margin,
-        decoration: BoxDecoration(
-          borderRadius: radius,
-          boxShadow: [
-            BoxShadow(
-              color: isDark 
-                  ? Colors.black.withValues(alpha: 0.3) 
-                  : Colors.black.withValues(alpha: 0.08),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-              spreadRadius: -2,
-            ),
-          ],
-        ),
-        child: CustomPaint(
-          painter: _GradientBorderPainter(
-            radius: borderRadius,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: isDark
-                  ? [Colors.white.withValues(alpha: 0.15), Colors.white.withValues(alpha: 0.02)]
-                  : [AppColors.primary.withValues(alpha: 0.2), Colors.black.withValues(alpha: 0.05)],
-            ),
-            strokeWidth: 1.2,
+    return Container(
+      width: isFullWidth ? double.infinity : width,
+      height: height,
+      margin: margin,
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        boxShadow: [
+          // 부드럽고 확산되는 드롭 섀도우
+          BoxShadow(
+            color: isDark 
+                ? Colors.black.withValues(alpha: 0.5) 
+                : Colors.black.withValues(alpha: 0.05),
+            blurRadius: 30,
+            offset: const Offset(0, 10),
+            spreadRadius: -5,
           ),
-          child: ClipRRect(
-            borderRadius: radius,
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-              child: Container(
-                padding: padding,
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? AppColors.bgSurfaceDark.withValues(alpha: 0.7)
-                      : Colors.white.withValues(alpha: 0.8), // 흰색 배경 위에서 보이도록 불투명도 조절
-                ),
-                child: child,
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: radius,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20), // 더 강력한 블러 효과
+          child: Container(
+            padding: padding,
+            decoration: BoxDecoration(
+              borderRadius: radius,
+              // 높은 투명도의 베이스 컬러
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.05)
+                  : Colors.white.withValues(alpha: 0.4),
+              // 미세하고 깨끗한 서리 낀 흰색 테두리
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.white.withValues(alpha: 0.6),
+                width: 1.0,
+              ),
+              // 모서리 하이라이트 효과를 위한 미세 그라데이션
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: isDark
+                    ? [Colors.white.withValues(alpha: 0.1), Colors.transparent]
+                    : [Colors.white.withValues(alpha: 0.5), Colors.transparent],
+                stops: const [0.0, 0.5],
               ),
             ),
+            child: child,
           ),
         ),
       ),
     );
   }
-}
-
-class _GradientBorderPainter extends CustomPainter {
-  _GradientBorderPainter({
-    required this.radius,
-    required this.gradient,
-    required this.strokeWidth,
-  });
-
-  final double radius;
-  final Gradient gradient;
-  final double strokeWidth;
-  final Paint _paint = Paint();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    _paint.shader = gradient.createShader(rect);
-    _paint.style = PaintingStyle.stroke;
-    _paint.strokeWidth = strokeWidth;
-
-    final RRect rrect = RRect.fromRectAndRadius(rect, Radius.circular(radius));
-    canvas.drawRRect(rrect, _paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 typedef GlassContainer = GlassCard;

@@ -41,25 +41,26 @@ class CommunityScreen extends ConsumerWidget {
 class _NetworkShortcut extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: () => context.push('/network'),
       child: GlassContainer(
         padding: const EdgeInsets.all(16),
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.public, color: AppColors.primary, size: 20),
-            SizedBox(width: 12),
+            const Icon(Icons.public, color: AppColors.primary, size: 20),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('기숙사 네트워크', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
-                  SizedBox(height: 2),
-                  Text('자치회 · 타 학교 열람 · 학교 대항전', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                  Text('기숙사 네트워크', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: isDark ? Colors.white : AppColors.textPrimary)),
+                  const SizedBox(height: 2),
+                  Text('자치회 · 타 학교 열람 · 학교 대항전', style: TextStyle(fontSize: 11, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary)),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: AppColors.textMuted, size: 20),
+            const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
           ],
         ),
       ),
@@ -75,14 +76,15 @@ class _BoardListSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GlassContainer(
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(20, 16, 20, 8),
-            child: Text('게시판', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+            child: Text('게시판', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: isDark ? Colors.white : AppColors.textPrimary)),
           ),
           ...boards.asMap().entries.map((entry) {
             final isLast = entry.key == boards.length - 1;
@@ -101,18 +103,20 @@ class _BoardRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        border: isLast ? null : const Border(bottom: BorderSide(color: AppColors.borderLight, width: 0.5)),
+        border: isLast ? null : Border(bottom: BorderSide(color: isDark ? AppColors.borderDark : Colors.black.withValues(alpha: 0.05), width: 0.5)),
       ),
       child: ListTile(
         dense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
-        title: Text(board.name, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary, fontWeight: FontWeight.w600)),
-        subtitle: Text(board.description, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
-        trailing: Text('${board.postCount}', style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+        title: Text(board.name, style: TextStyle(fontSize: 14, color: isDark ? Colors.white : AppColors.textPrimary, fontWeight: FontWeight.w600)),
+        subtitle: Text(board.description, style: TextStyle(fontSize: 12, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary)),
+        trailing: Text('${board.postCount}', style: TextStyle(fontSize: 12, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary)),
         onTap: () => context.push('/board/${board.id}'),
       ),
     );
   }
 }
+

@@ -19,24 +19,28 @@ class BoardDetailScreen extends ConsumerWidget {
     );
     final posts = ref.watch(postListProvider(boardId));
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+            icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : AppColors.textPrimary),
             onPressed: () => context.pop(),
           ),
-          title: Text(board.name, style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w800)),
+          title: Text(board.name, style: TextStyle(color: isDark ? Colors.white : AppColors.textPrimary, fontWeight: FontWeight.w800)),
         ),
         body: posts.isEmpty
-            ? const Center(
+            ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.article_outlined, size: 48, color: AppColors.textMuted),
-                    SizedBox(height: 12),
-                    Text('게시글이 없습니다', style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
+                    Icon(Icons.article_outlined, size: 48, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary),
+                    const SizedBox(height: 12),
+                    Text('게시글이 없습니다', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textSecondary, fontSize: 14)),
                   ],
                 ),
               )
@@ -60,7 +64,7 @@ class BoardDetailScreen extends ConsumerWidget {
                                   margin: const EdgeInsets.only(right: 8),
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: AppColors.primaryBg,
+                                    color: isDark ? AppColors.primary.withValues(alpha: 0.15) : AppColors.primaryBg,
                                     borderRadius: BorderRadius.circular(4),
                                     border: Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 0.5),
                                   ),
@@ -68,24 +72,24 @@ class BoardDetailScreen extends ConsumerWidget {
                                 ),
                               ],
                               Expanded(
-                                child: Text(p.title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                                child: Text(p.title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: isDark ? Colors.white : AppColors.textPrimary)),
                               ),
                             ],
                           ),
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              Text(p.author, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                              Text(p.author, style: TextStyle(fontSize: 12, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary)),
                               const SizedBox(width: 8),
-                              Text(p.date, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                              Text(p.date, style: TextStyle(fontSize: 12, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary)),
                               const Spacer(),
-                              Icon(Icons.visibility_outlined, size: 13, color: AppColors.textMuted),
+                              Icon(Icons.visibility_outlined, size: 13, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary),
                               const SizedBox(width: 3),
-                              Text('${p.viewCount}', style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                              Text('${p.viewCount}', style: TextStyle(fontSize: 11, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary)),
                               const SizedBox(width: 10),
-                              Icon(Icons.chat_bubble_outline, size: 13, color: AppColors.textMuted),
+                              Icon(Icons.chat_bubble_outline, size: 13, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary),
                               const SizedBox(width: 3),
-                              Text('${p.commentCount}', style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                              Text('${p.commentCount}', style: TextStyle(fontSize: 11, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary)),
                             ],
                           ),
                         ],
@@ -94,6 +98,7 @@ class BoardDetailScreen extends ConsumerWidget {
                   );
                 },
               ),
+
         floatingActionButton: FloatingActionButton(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,

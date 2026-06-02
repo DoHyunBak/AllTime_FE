@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -24,57 +25,70 @@ class MainShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(shellIndexProvider);
     final user = ref.watch(authProvider);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final barBgColor = isDark 
+        ? AppColors.bgSurfaceDark.withValues(alpha: 0.8) 
+        : Colors.white.withValues(alpha: 0.8);
+    final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
+    final textColor = isDark ? Colors.white : AppColors.textPrimary;
 
     return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: Container(
-            decoration: const BoxDecoration(
-              color: AppColors.bgSurface,
-              border: Border(bottom: BorderSide(color: AppColors.borderLight, width: 0.5)),
-            ),
-            child: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              automaticallyImplyLeading: false,
-              title: Row(
-                children: [
-                  const Text('ALL', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
-                  const Text('TIME', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.primary)),
-                  if (user != null) ...[
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        '${user.school} · ${user.dormitory}',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.textMuted),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-              actions: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.notifications_none, color: AppColors.textPrimary),
-                      onPressed: () {},
-                    ),
-                    Positioned(
-                      top: 12,
-                      right: 12,
-                      child: Container(
-                        width: 7,
-                        height: 7,
-                        decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
-                      ),
+          child: ClipRRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: barBgColor,
+                  border: Border(bottom: BorderSide(color: borderColor.withValues(alpha: 0.5), width: 0.5)),
+                ),
+                child: AppBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  automaticallyImplyLeading: false,
+                  title: Row(
+                    children: [
+                      Text('ALL', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: textColor)),
+                      const Text('TIME', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.primary)),
+                      if (user != null) ...[
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            '${user.school} · ${user.dormitory}',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: isDark ? Colors.white70 : AppColors.textMuted),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  actions: [
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.notifications_none, color: textColor),
+                          onPressed: () {},
+                        ),
+                        Positioned(
+                          top: 12,
+                          right: 12,
+                          child: Container(
+                            width: 7,
+                            height: 7,
+                            decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
@@ -84,29 +98,34 @@ class MainShell extends ConsumerWidget {
             Expanded(child: child),
           ],
         ),
-        bottomNavigationBar: Container(
-          decoration: const BoxDecoration(
-            color: AppColors.bgSurface,
-            border: Border(top: BorderSide(color: AppColors.borderLight, width: 0.5)),
-          ),
-          child: BottomNavigationBar(
-            currentIndex: currentIndex,
-            onTap: (index) {
-              ref.read(shellIndexProvider.notifier).state = index;
-              context.go(_tabs[index].path);
-            },
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.transparent,
-            selectedItemColor: AppColors.primary,
-            unselectedItemColor: AppColors.textMuted,
-            selectedFontSize: 11,
-            unselectedFontSize: 11,
-            elevation: 0,
-            items: _tabs.map((tab) => BottomNavigationBarItem(
-              icon: Icon(tab.icon),
-              activeIcon: Icon(tab.activeIcon),
-              label: tab.label,
-            )).toList(),
+        bottomNavigationBar: ClipRRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                color: barBgColor,
+                border: Border(top: BorderSide(color: borderColor.withValues(alpha: 0.5), width: 0.5)),
+              ),
+              child: BottomNavigationBar(
+                currentIndex: currentIndex,
+                onTap: (index) {
+                  ref.read(shellIndexProvider.notifier).state = index;
+                  context.go(_tabs[index].path);
+                },
+                type: BottomNavigationBarType.fixed,
+                backgroundColor: Colors.transparent,
+                selectedItemColor: AppColors.primary,
+                unselectedItemColor: isDark ? Colors.white30 : AppColors.textMuted,
+                selectedFontSize: 11,
+                unselectedFontSize: 11,
+                elevation: 0,
+                items: _tabs.map((tab) => BottomNavigationBarItem(
+                  icon: Icon(tab.icon),
+                  activeIcon: Icon(tab.activeIcon),
+                  label: tab.label,
+                )).toList(),
+              ),
+            ),
           ),
         ),
         floatingActionButton: user != null && user.discountCoupons > 0
