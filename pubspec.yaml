@@ -1,0 +1,44 @@
+name: alltime_fe
+description: "AllTime — 핵심 문제를 가장 빠르게 해결하는 미니멀 앱"
+publish_to: 'none'
+
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # 라우팅 — 선언형, 딥링크 지원
+  go_router: ^14.0.0
+
+  # 상태 관리 — 단순하고 테스트 가능
+  flutter_riverpod: ^2.5.1
+
+  # 오프라인 대응 — 현장 네트워크 불안정 고려
+  connectivity_plus: ^6.0.3
+
+  # 로컬 영속성 — 경량 설정 저장
+  shared_preferences: ^2.3.1
+
+  # 타이포그래피 — Inter 폰트 (가독성 최우선)
+  google_fonts: ^6.2.1
+
+  # 인앱 피드백 — 스크린샷 + 텍스트 피드백
+  feedback: ^3.1.0
+
+  # 아이콘
+  cupertino_icons: ^1.0.8
+
+  # 이미지 선택 (식사 리뷰 사진)
+  image_picker: ^1.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
