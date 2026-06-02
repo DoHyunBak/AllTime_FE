@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../domain/facility_provider.dart';
-import '../../../core/payment/payment_provider.dart';
 
 class FacilityScreen extends ConsumerWidget {
   const FacilityScreen({super.key});
@@ -57,47 +56,80 @@ class FacilityScreen extends ConsumerWidget {
   }
 }
 
-// ── 세탁실 ────────────────────────────────────────────────────────────
+// ── 세탁실 (세탁기 + 건조기) ───────────────────────────────────────────
 
 class _LaundrySection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final machines = ref.watch(laundryProvider);
-    final available = machines.where((m) => m.status == MachineStatus.available).length;
+    final washers = ref.watch(washingMachinesProvider);
+    final dryers = ref.watch(dryersProvider);
+    final washAvail = washers.where((m) => m.status == MachineStatus.available).length;
+    final dryAvail = dryers.where((m) => m.status == MachineStatus.available).length;
 
     return _Card(
       title: '세탁실',
       icon: Icons.local_laundry_service,
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        decoration: BoxDecoration(
-          color: AppColors.primaryBg,
-          borderRadius: BorderRadius.circular(500),
-        ),
-        child: Text('$available대 가능', style: const TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w700)),
+        decoration: BoxDecoration(color: AppColors.primaryBg, borderRadius: BorderRadius.circular(500)),
+        child: Text('세탁 $washAvail · 건조 $dryAvail 가능',
+            style: const TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w700)),
       ),
-      child: GridView.count(
-        crossAxisCount: 3,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 1.3,
-        children: machines.map((m) => _MachineChip(machine: m)).toList(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _MachineGroup(label: '세탁기', icon: Icons.local_laundry_service, machines: washers),
+          const SizedBox(height: 16),
+          _MachineGroup(label: '건조기', icon: Icons.dry_cleaning, machines: dryers),
+        ],
       ),
     );
   }
 }
 
+class _MachineGroup extends StatelessWidget {
+  const _MachineGroup({required this.label, required this.icon, required this.machines});
+  final String label;
+  final IconData icon;
+  final List<LaundryMachine> machines;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 14, color: AppColors.textSecondary),
+            const SizedBox(width: 6),
+            Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        GridView.count(
+          crossAxisCount: 4,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: 1.0,
+          children: machines.map((m) => _MachineChip(machine: m, icon: icon)).toList(),
+        ),
+      ],
+    );
+  }
+}
+
 class _MachineChip extends StatelessWidget {
-  const _MachineChip({required this.machine});
+  const _MachineChip({required this.machine, required this.icon});
   final LaundryMachine machine;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
     final (color, bgColor, label) = switch (machine.status) {
       MachineStatus.available  => (AppColors.available, AppColors.primaryBg, '사용가능'),
-      MachineStatus.running    => (AppColors.running, const Color(0xFFEFF5FF), machine.remainingMinutes != null ? '${machine.remainingMinutes}분 남음' : '사용중'),
+      MachineStatus.running    => (AppColors.running, const Color(0xFFEFF5FF), machine.remainingMinutes != null ? '${machine.remainingMinutes}분' : '사용중'),
       MachineStatus.outOfOrder => (AppColors.outOfOrder, const Color(0xFFFFF0F0), '점검중'),
     };
 
@@ -110,17 +142,17 @@ class _MachineChip extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.local_laundry_service, size: 18, color: color),
-          const SizedBox(height: 5),
-          Text('${machine.id}번', style: TextStyle(fontSize: 10, color: color.withValues(alpha: 0.6))),
-          Text(label, style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.w700), textAlign: TextAlign.center),
+          Icon(icon, size: 16, color: color),
+          const SizedBox(height: 4),
+          Text('${machine.id}번', style: TextStyle(fontSize: 9, color: color.withValues(alpha: 0.6))),
+          Text(label, style: TextStyle(fontSize: 9, color: color, fontWeight: FontWeight.w700), textAlign: TextAlign.center),
         ],
       ),
     );
   }
 }
 
-// ── 체육관 ────────────────────────────────────────────────────────────
+// ── 헬스장 (현재 이용인원 / 최대수용인원 · 혼잡도) ──────────────────────
 
 class _GymSection extends ConsumerWidget {
   @override
@@ -134,7 +166,7 @@ class _GymSection extends ConsumerWidget {
     };
 
     return _Card(
-      title: '체육관',
+      title: '헬스장',
       icon: Icons.fitness_center,
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -144,12 +176,22 @@ class _GymSection extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('현재 ${gym.occupancy}명 / 최대 ${gym.capacity}명', style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text('${gym.occupancy}', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: statusColor)),
+              const Text(' 명', style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+              const Spacer(),
+              Text('최대 ${gym.capacity}명 · 이용률 ${(gym.ratio * 100).round()}%',
+                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+            ],
+          ),
           const SizedBox(height: 10),
           ClipRRect(
             borderRadius: BorderRadius.circular(5),
             child: LinearProgressIndicator(
-              value: gym.ratio,
+              value: gym.ratio.clamp(0.0, 1.0),
               minHeight: 8,
               backgroundColor: AppColors.bgElevated,
               valueColor: AlwaysStoppedAnimation<Color>(statusColor),
@@ -163,7 +205,7 @@ class _GymSection extends ConsumerWidget {
   }
 }
 
-// ── 식당 ──────────────────────────────────────────────────────────────
+// ── 식당 (식단 + 영양성분) ─────────────────────────────────────────────
 
 class _CafeteriaSection extends ConsumerWidget {
   @override
@@ -174,19 +216,19 @@ class _CafeteriaSection extends ConsumerWidget {
       title: '식당',
       icon: Icons.restaurant,
       child: Column(
-        children: menus.map((menu) => _MenuRow(menu: menu, ref: ref)).toList(),
+        children: menus.map((menu) => _MenuRow(menu: menu)).toList(),
       ),
     );
   }
 }
 
 class _MenuRow extends StatelessWidget {
-  const _MenuRow({required this.menu, required this.ref});
+  const _MenuRow({required this.menu});
   final CafeteriaMenu menu;
-  final WidgetRef ref;
 
   @override
   Widget build(BuildContext context) {
+    final n = menu.nutrition;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -201,27 +243,57 @@ class _MenuRow extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(menu.mealType, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+              Row(
+                children: [
+                  Text(menu.mealType, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                  const SizedBox(width: 8),
+                  Text('${n.kcal} kcal', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                ],
+              ),
               Text('${menu.price}원', style: const TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.w700)),
             ],
           ),
           const SizedBox(height: 6),
           Text(menu.items.join(' · '), style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
           const SizedBox(height: 14),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                final method = ref.read(paymentMethodProvider);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('단말기에 휴대폰을 태그해주세요. ($method)'), duration: const Duration(seconds: 2)),
-                );
-              },
-              icon: const Icon(Icons.nfc, size: 16),
-              label: Text('${menu.price}원 자동 결제'.toUpperCase()),
-            ),
+          // 영양성분
+          Row(
+            children: [
+              _NutrientChip(label: '탄수화물', value: '${n.carbs}g'),
+              const SizedBox(width: 8),
+              _NutrientChip(label: '단백질', value: '${n.protein}g'),
+              const SizedBox(width: 8),
+              _NutrientChip(label: '지방', value: '${n.fat}g'),
+            ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _NutrientChip extends StatelessWidget {
+  const _NutrientChip({required this.label, required this.value});
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.bgSurface,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.borderLight, width: 0.5),
+        ),
+        child: Column(
+          children: [
+            Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textMuted, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 2),
+            Text(value, style: const TextStyle(fontSize: 13, color: AppColors.textPrimary, fontWeight: FontWeight.w800)),
+          ],
+        ),
       ),
     );
   }

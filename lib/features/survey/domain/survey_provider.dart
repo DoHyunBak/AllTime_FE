@@ -22,6 +22,7 @@ class Survey {
     required this.createdBy,
     required this.expiresAt,
     required this.totalVoters,
+    required this.prize,
   });
 
   final String id;
@@ -31,6 +32,9 @@ class Survey {
   final String createdBy;
   final DateTime expiresAt;
   final int totalVoters;
+
+  /// 참여자 중 추첨을 통해 1명에게 지급되는 경품
+  final String prize;
 
   bool get isExpired => DateTime.now().isAfter(expiresAt);
   int get totalVotes => options.fold(0, (sum, o) => sum + o.votes);
@@ -45,6 +49,7 @@ class Survey {
       createdBy: createdBy,
       expiresAt: expiresAt,
       totalVoters: totalVoters + 1,
+      prize: prize,
     );
   }
 }
@@ -63,6 +68,7 @@ final _mockSurveys = [
     createdBy: 'admin_001',
     expiresAt: DateTime.now().add(const Duration(days: 5)),
     totalVoters: 246,
+    prize: '스타벅스 아메리카노 기프티콘',
   ),
   Survey(
     id: 's2',
@@ -76,6 +82,7 @@ final _mockSurveys = [
     createdBy: 'admin_001',
     expiresAt: DateTime.now().add(const Duration(days: 2)),
     totalVoters: 285,
+    prize: '편의점 5,000원 모바일 상품권',
   ),
   Survey(
     id: 's3',
@@ -89,6 +96,7 @@ final _mockSurveys = [
     createdBy: 'admin_001',
     expiresAt: DateTime.now().add(const Duration(days: 8)),
     totalVoters: 408,
+    prize: '배달앱 10,000원 쿠폰',
   ),
   Survey(
     id: 's4',
@@ -103,6 +111,7 @@ final _mockSurveys = [
     createdBy: 'admin_001',
     expiresAt: DateTime.now().add(const Duration(days: 12)),
     totalVoters: 591,
+    prize: '단백질 보충제 1통',
   ),
   Survey(
     id: 's5',
@@ -116,6 +125,7 @@ final _mockSurveys = [
     createdBy: 'admin_001',
     expiresAt: DateTime.now().subtract(const Duration(days: 3)),
     totalVoters: 797,
+    prize: '치킨 기프티콘',
   ),
 ];
 

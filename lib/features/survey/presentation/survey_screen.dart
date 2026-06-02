@@ -104,6 +104,38 @@ class _SurveyCardState extends ConsumerState<_SurveyCard> {
           ),
           const SizedBox(height: 6),
           Text(survey.description, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+          const SizedBox(height: 12),
+
+          // ── 추첨 경품 안내 ──────────────────────────────────
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.primaryBg,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.primary.withValues(alpha: 0.25), width: 0.5),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.card_giftcard, size: 16, color: AppColors.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: RichText(
+                    text: TextSpan(
+                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.3),
+                      children: [
+                        const TextSpan(text: '참여자 추첨 1명 '),
+                        TextSpan(
+                          text: survey.prize,
+                          style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.primary),
+                        ),
+                        const TextSpan(text: ' 증정'),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 14),
 
           ...survey.options.map((option) {
@@ -137,6 +169,12 @@ class _SurveyCardState extends ConsumerState<_SurveyCard> {
                         onTap: () {
                           notifier.vote(survey.id, _selectedOption!);
                           setState(() {});
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('투표 완료! 추첨에 응모되었습니다.\n당첨자 1명에게 ${survey.prize}을(를) 드립니다 🎁'),
+                              duration: const Duration(seconds: 3),
+                            ),
+                          );
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -259,6 +297,7 @@ class _CreateSurveySheet extends StatefulWidget {
 class _CreateSurveySheetState extends State<_CreateSurveySheet> {
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
+  final _prizeController = TextEditingController();
   final _optionControllers = [TextEditingController(), TextEditingController()];
 
   void _addOption() {
@@ -282,6 +321,7 @@ class _CreateSurveySheetState extends State<_CreateSurveySheet> {
       createdBy: 'admin_001',
       expiresAt: DateTime.now().add(const Duration(days: 7)),
       totalVoters: 0,
+      prize: _prizeController.text.trim().isEmpty ? '커피 기프티콘' : _prizeController.text.trim(),
     );
     widget.ref.read(surveyProvider.notifier).addSurvey(survey);
     Navigator.pop(context);
@@ -291,6 +331,7 @@ class _CreateSurveySheetState extends State<_CreateSurveySheet> {
   void dispose() {
     _titleController.dispose();
     _descController.dispose();
+    _prizeController.dispose();
     for (final c in _optionControllers) { c.dispose(); }
     super.dispose();
   }
@@ -324,6 +365,8 @@ class _CreateSurveySheetState extends State<_CreateSurveySheet> {
             TextField(controller: _titleController, decoration: const InputDecoration(hintText: '설문 제목')),
             const SizedBox(height: 10),
             TextField(controller: _descController, maxLines: 2, decoration: const InputDecoration(hintText: '설명 (선택)')),
+            const SizedBox(height: 10),
+            TextField(controller: _prizeController, decoration: const InputDecoration(hintText: '추첨 경품 (예: 커피 기프티콘)', prefixIcon: Icon(Icons.card_giftcard, size: 18))),
             const SizedBox(height: 20),
             const Text('응답 옵션', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textSecondary)),
             const SizedBox(height: 10),
