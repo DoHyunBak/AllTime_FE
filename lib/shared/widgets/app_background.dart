@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 
 class AppBackground extends StatelessWidget {
   const AppBackground({super.key, required this.child});
@@ -8,14 +9,13 @@ class AppBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF121212), // Deepest dark
-        gradient: RadialGradient(
-          center: Alignment(-1.0, -1.0), // Top Left
-          radius: 1.8,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
           colors: [
-            Color(0xFF1F3324), // Subtle dark green tint for glassmorphism
-            Color(0xFF121212),
-            Color(0xFF0A0A0A),
+            Color(0xFFF8FAFC), // Cool white
+            AppColors.bgBase,   // Soft off-white
+            Color(0xFFEEF2F7), // Very light blue-grey
           ],
           stops: [0.0, 0.5, 1.0],
         ),

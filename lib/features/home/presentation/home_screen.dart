@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/network/connectivity.dart';
-import '../../../core/auth/auth_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/dorm_mode/location_dorm_detector.dart';
 import '../../../shared/widgets/offline_banner.dart';
@@ -33,7 +31,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // 첫 프레임 이후 위치 기반 기숙사 감지 시작 (5초 후 팝업)
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (mounted) LocationDormDetector.startDetecting(context, ref);
     });
@@ -47,8 +44,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isOffline = ref.watch(isOfflineProvider);
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Column(
@@ -58,57 +53,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                // NFC 기숙사 모드
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [NfcSimulateButton()],
                 ),
                 const SizedBox(height: 12),
-
-                // 시설 퀵 상태
                 _FacilityQuickStatus(),
-                const SizedBox(height: 24),
-
-                // 공지사항
+                const SizedBox(height: 20),
                 GlassContainer(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _SectionHeading(
-                        title: '공지사항',
-                        titleColor: Colors.white,
-                        onMore: () => context.push('/board/notice'),
-                      ),
+                      _SectionHeading(title: '공지사항', onMore: () => context.push('/board/notice')),
                       const SizedBox(height: 12),
-                      ..._mockAnnouncements.asMap().entries.map((e) {
-                        final id = 'n${e.key + 1}'; // n1, n2, n3
-                        return _AnnouncementItem(
-                          id: id,
-                          title: e.value.title,
-                          date: e.value.date,
-                          isUrgent: e.value.isUrgent,
-                        );
-                      }),
+                      ..._mockAnnouncements.asMap().entries.map((e) => _AnnouncementItem(
+                        id: 'n${e.key + 1}',
+                        title: e.value.title,
+                        date: e.value.date,
+                        isUrgent: e.value.isUrgent,
+                      )),
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
-
-                // HOT 게시글
+                const SizedBox(height: 16),
                 GlassContainer(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _SectionHeading(
-                        title: 'HOT 게시글',
-                        titleColor: Colors.white.withValues(alpha: 0.9),
-                        onMore: () => context.push('/board/hot'),
-                      ),
+                      _SectionHeading(title: 'HOT 게시글', onMore: () => context.push('/board/hot')),
                       const SizedBox(height: 12),
-                      ..._mockHotPosts.asMap().entries.map((e) {
-                        final id = 'p${e.key + 1}'; // p1, p2, p3
-                        return _PostItem(id: id, title: e.value.title, date: e.value.date);
-                      }),
+                      ..._mockHotPosts.asMap().entries.map((e) => _PostItem(
+                        id: 'p${e.key + 1}',
+                        title: e.value.title,
+                        date: e.value.date,
+                      )),
                     ],
                   ),
                 ),
@@ -130,37 +108,15 @@ class _FacilityQuickStatus extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '시설 현황',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 16),
+          const Text('시설 현황', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+          const SizedBox(height: 14),
           Row(
             children: [
-              _QuickStatusChip(
-                icon: Icons.local_laundry_service,
-                label: '세탁기',
-                status: '3대 가능',
-                color: Colors.white,
-              ),
+              _QuickStatusChip(icon: Icons.local_laundry_service, label: '세탁기', status: '3대 가능', statusColor: AppColors.available),
               const SizedBox(width: 10),
-              _QuickStatusChip(
-                icon: Icons.fitness_center,
-                label: '체육관',
-                status: '여유',
-                color: Colors.white,
-              ),
+              _QuickStatusChip(icon: Icons.fitness_center, label: '체육관', status: '여유', statusColor: AppColors.available),
               const SizedBox(width: 10),
-              _QuickStatusChip(
-                icon: Icons.restaurant,
-                label: '식당',
-                status: '11:30 점심',
-                color: Colors.white,
-              ),
+              _QuickStatusChip(icon: Icons.restaurant, label: '식당', status: '11:30 점심', statusColor: AppColors.textSecondary),
             ],
           ),
         ],
@@ -170,45 +126,29 @@ class _FacilityQuickStatus extends StatelessWidget {
 }
 
 class _QuickStatusChip extends StatelessWidget {
-  const _QuickStatusChip({
-    required this.icon,
-    required this.label,
-    required this.status,
-    required this.color,
-  });
-
+  const _QuickStatusChip({required this.icon, required this.label, required this.status, required this.statusColor});
   final IconData icon;
   final String label;
   final String status;
-  final Color color;
+  final Color statusColor;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: GlassContainer(
+      child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-        borderRadius: 12,
-        opacity: 0.1,
-        borderOpacity: 0.1,
-        blurSigma: 8,
+        decoration: BoxDecoration(
+          color: AppColors.bgElevated,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.borderLight, width: 0.5),
+        ),
         child: Column(
           children: [
-            Icon(icon, size: 20, color: color),
+            Icon(icon, size: 20, color: AppColors.textSecondary),
             const SizedBox(height: 6),
-            Text(
-              label,
-              style: TextStyle(fontSize: 10, color: color.withValues(alpha: 0.6)),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              status,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: color,
-              ),
-              textAlign: TextAlign.center,
-            ),
+            Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textMuted)),
+            const SizedBox(height: 3),
+            Text(status, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: statusColor), textAlign: TextAlign.center),
           ],
         ),
       ),
@@ -217,14 +157,8 @@ class _QuickStatusChip extends StatelessWidget {
 }
 
 class _SectionHeading extends StatelessWidget {
-  const _SectionHeading({
-    required this.title,
-    required this.titleColor,
-    required this.onMore,
-  });
-
+  const _SectionHeading({required this.title, required this.onMore});
   final String title;
-  final Color titleColor;
   final VoidCallback onMore;
 
   @override
@@ -232,20 +166,10 @@ class _SectionHeading extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w800,
-            color: titleColor,
-          ),
-        ),
+        Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
         GestureDetector(
           onTap: onMore,
-          child: Text(
-            '더보기',
-            style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.5)),
-          ),
+          child: const Text('더보기', style: TextStyle(fontSize: 12, color: AppColors.textMuted, fontWeight: FontWeight.w500)),
         ),
       ],
     );
@@ -253,13 +177,7 @@ class _SectionHeading extends StatelessWidget {
 }
 
 class _AnnouncementItem extends StatelessWidget {
-  const _AnnouncementItem({
-    required this.id,
-    required this.title,
-    required this.date,
-    required this.isUrgent,
-  });
-
+  const _AnnouncementItem({required this.id, required this.title, required this.date, required this.isUrgent});
   final String id;
   final String title;
   final String date;
@@ -270,7 +188,7 @@ class _AnnouncementItem extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.push('/post/$id'),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 7),
         child: Row(
           children: [
             if (isUrgent)
@@ -278,27 +196,17 @@ class _AnnouncementItem extends StatelessWidget {
                 margin: const EdgeInsets.only(right: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: AppColors.error.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 0.5),
+                  border: Border.all(color: AppColors.error.withValues(alpha: 0.3), width: 0.5),
                 ),
-                child: const Text(
-                  '필독',
-                  style: TextStyle(fontSize: 9, color: Colors.white, fontWeight: FontWeight.w800),
-                ),
+                child: const Text('필독', style: TextStyle(fontSize: 9, color: AppColors.error, fontWeight: FontWeight.w800)),
               ),
             Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(fontSize: 13, color: Colors.white),
-                overflow: TextOverflow.ellipsis,
-              ),
+              child: Text(title, style: const TextStyle(fontSize: 13, color: AppColors.textPrimary), overflow: TextOverflow.ellipsis),
             ),
             const SizedBox(width: 8),
-            Text(
-              date,
-              style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.4)),
-            ),
+            Text(date, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
           ],
         ),
       ),
@@ -308,7 +216,6 @@ class _AnnouncementItem extends StatelessWidget {
 
 class _PostItem extends StatelessWidget {
   const _PostItem({required this.id, required this.title, required this.date});
-
   final String id;
   final String title;
   final String date;
@@ -318,22 +225,14 @@ class _PostItem extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.push('/post/$id'),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 7),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(fontSize: 13, color: Colors.white),
-                overflow: TextOverflow.ellipsis,
-              ),
+              child: Text(title, style: const TextStyle(fontSize: 13, color: AppColors.textPrimary), overflow: TextOverflow.ellipsis),
             ),
             const SizedBox(width: 8),
-            Text(
-              date,
-              style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.4)),
-            ),
+            Text(date, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
           ],
         ),
       ),

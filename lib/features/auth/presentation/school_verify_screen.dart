@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,14 +8,11 @@ import '../../../core/auth/auth_provider.dart';
 import '../../../shared/widgets/app_background.dart';
 import '../../../shared/widgets/glass_container.dart';
 
-
-// 학교 인증 상태
 enum VerifyStep { enterEmail, enterCode, done }
 
 final _verifyStepProvider = StateProvider<VerifyStep>((ref) => VerifyStep.enterEmail);
 final _verifyEmailProvider = StateProvider<String>((ref) => '');
 
-// 에브리타임과 동일: 학교 이메일 → 인증 코드 6자리 입력
 class SchoolVerifyScreen extends ConsumerStatefulWidget {
   const SchoolVerifyScreen({super.key});
 
@@ -44,37 +40,25 @@ class _SchoolVerifyScreenState extends ConsumerState<SchoolVerifyScreen> {
   Future<void> _sendCode() async {
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('올바른 학교 이메일을 입력해주세요')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('올바른 학교 이메일을 입력해주세요')));
       return;
     }
     setState(() => _loading = true);
     await Future.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
-
     ref.read(_verifyEmailProvider.notifier).state = email;
     ref.read(_verifyStepProvider.notifier).state = VerifyStep.enterCode;
-    setState(() {
-      _loading = false;
-      _resendSeconds = 180;
-    });
+    setState(() { _loading = false; _resendSeconds = 180; });
     _startResendTimer();
     _codeFocusNodes[0].requestFocus();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$email 로 인증 코드를 발송했습니다 (데모: 123456)')),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$email 로 인증 코드를 발송했습니다 (데모: 123456)')));
   }
 
   void _startResendTimer() {
     _resendTimer?.cancel();
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (_resendSeconds <= 0) {
-        t.cancel();
-      } else {
-        setState(() => _resendSeconds--);
-      }
+      if (_resendSeconds <= 0) t.cancel();
+      else setState(() => _resendSeconds--);
     });
   }
 
@@ -84,8 +68,6 @@ class _SchoolVerifyScreenState extends ConsumerState<SchoolVerifyScreen> {
     setState(() => _loading = true);
     await Future.delayed(const Duration(milliseconds: 600));
     if (!mounted) return;
-
-    // 데모: 123456이면 통과
     if (code == '123456') {
       ref.read(authProvider.notifier).verifySchool();
       ref.read(_verifyStepProvider.notifier).state = VerifyStep.done;
@@ -111,16 +93,13 @@ class _SchoolVerifyScreenState extends ConsumerState<SchoolVerifyScreen> {
       return AppBackground(
         child: Scaffold(
           backgroundColor: Colors.transparent,
-          body: Center(
+          body: const Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.check_circle, color: Colors.white, size: 80),
-                const SizedBox(height: 24),
-                const Text(
-                  '학교 인증 완료!',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.white),
-                ),
+                Icon(Icons.check_circle, color: AppColors.primary, size: 80),
+                SizedBox(height: 24),
+                Text('학교 인증 완료!', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppColors.textPrimary)),
               ],
             ),
           ),
@@ -131,33 +110,23 @@ class _SchoolVerifyScreenState extends ConsumerState<SchoolVerifyScreen> {
     return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: ClipRRect(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-              child: AppBar(
-                backgroundColor: Colors.white.withValues(alpha: 0.1),
-                elevation: 0,
-                leading: step == VerifyStep.enterCode
-                    ? IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () {
-                          ref.read(_verifyStepProvider.notifier).state = VerifyStep.enterEmail;
-                          for (final c in _codeControllers) c.clear();
-                        },
-                      )
-                    : null,
-                title: const Text('학교 인증', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
-              ),
-            ),
-          ),
+        appBar: AppBar(
+          leading: step == VerifyStep.enterCode
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                  onPressed: () {
+                    ref.read(_verifyStepProvider.notifier).state = VerifyStep.enterEmail;
+                    for (final c in _codeControllers) c.clear();
+                  },
+                )
+              : null,
+          title: const Text('학교 인증', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w800)),
         ),
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(20),
             child: GlassContainer(
-              padding: const EdgeInsets.all(28),
+              padding: const EdgeInsets.all(24),
               child: step == VerifyStep.enterEmail
                   ? _EmailStep(controller: _emailController, loading: _loading, onSend: _sendCode)
                   : _CodeStep(
@@ -193,31 +162,23 @@ class _EmailStep extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 8),
-        const Text('학교 이메일을\n입력해주세요', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white, height: 1.3)),
-        const SizedBox(height: 12),
-        const Text('재학생 인증을 위해 학교에서 발급한\n이메일이 필요합니다', style: TextStyle(fontSize: 14, color: Colors.white70, height: 1.4)),
-        const SizedBox(height: 32),
+        const Text('학교 이메일을\n입력해주세요', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimary, height: 1.3)),
+        const SizedBox(height: 10),
+        const Text('재학생 인증을 위해 학교에서 발급한\n이메일이 필요합니다', style: TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.5)),
+        const SizedBox(height: 28),
         TextField(
           controller: controller,
           keyboardType: TextInputType.emailAddress,
-          style: const TextStyle(fontSize: 15, color: Colors.white),
-          decoration: InputDecoration(
+          style: const TextStyle(fontSize: 15, color: AppColors.textPrimary),
+          decoration: const InputDecoration(
             hintText: 'example@univ.ac.kr',
-            hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
-            suffixIcon: const Icon(Icons.email_outlined, color: Colors.white54),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.05),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1))),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1))),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4), width: 1.5)),
+            suffixIcon: Icon(Icons.email_outlined, color: AppColors.textMuted),
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
         SizedBox(
           width: double.infinity,
-          height: 52,
+          height: 50,
           child: ElevatedButton(
             onPressed: loading ? null : onSend,
             child: loading
@@ -225,16 +186,13 @@ class _EmailStep extends StatelessWidget {
                 : Text('인증 코드 발송'.toUpperCase()),
           ),
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 32),
         Center(
           child: RichText(
-            text: TextSpan(
+            text: const TextSpan(
               children: [
-                const TextSpan(text: '졸업생이거나 이메일이 없다면 ', style: TextStyle(fontSize: 12, color: Colors.white54)),
-                TextSpan(
-                  text: '학생증으로 인증',
-                  style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.9), fontWeight: FontWeight.w800, decoration: TextDecoration.underline),
-                ),
+                TextSpan(text: '졸업생이거나 이메일이 없다면 ', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                TextSpan(text: '학생증으로 인증', style: TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.w700, decoration: TextDecoration.underline, decorationColor: AppColors.primary)),
               ],
             ),
           ),
@@ -255,7 +213,6 @@ class _CodeStep extends StatelessWidget {
     required this.onCodeChanged,
     this.onResend,
   });
-
   final String email;
   final List<TextEditingController> controllers;
   final List<FocusNode> focusNodes;
@@ -270,17 +227,14 @@ class _CodeStep extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 8),
-        const Text('인증 코드를\n입력해주세요', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white, height: 1.3)),
-        const SizedBox(height: 12),
-        Text('$email 로 발송된\n6자리 코드를 입력해주세요', style: const TextStyle(fontSize: 14, color: Colors.white70, height: 1.4)),
-        const SizedBox(height: 32),
-        // 6자리 OTP 입력
+        const Text('인증 코드를\n입력해주세요', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppColors.textPrimary, height: 1.3)),
+        const SizedBox(height: 10),
+        Text('$email 로 발송된\n6자리 코드를 입력해주세요', style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.5)),
+        const SizedBox(height: 28),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: List.generate(6, (i) => SizedBox(
-            width: 40,
-            height: 52,
+            width: 42, height: 52,
             child: TextField(
               controller: controllers[i],
               focusNode: focusNodes[i],
@@ -288,42 +242,41 @@ class _CodeStep extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLength: 1,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.textPrimary),
               decoration: InputDecoration(
                 counterText: '',
                 contentPadding: EdgeInsets.zero,
-                filled: true,
-                fillColor: Colors.white.withValues(alpha: 0.05),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1))),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1))),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4), width: 2)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                ),
               ),
               onChanged: (val) => onCodeChanged(i, val),
             ),
           )),
         ),
-        const SizedBox(height: 24),
-        // 재발송 타이머
+        const SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               resendSeconds > 0 ? '${resendSeconds ~/ 60}:${(resendSeconds % 60).toString().padLeft(2, '0')} 후 재발송 가능' : '코드를 받지 못하셨나요?',
-              style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.5)),
+              style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
             ),
             if (onResend != null) ...[
               const SizedBox(width: 8),
               GestureDetector(
                 onTap: onResend,
-                child: const Text('재발송', style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w800, decoration: TextDecoration.underline)),
+                child: const Text('재발송', style: TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.w700, decoration: TextDecoration.underline, decorationColor: AppColors.primary)),
               ),
             ],
           ],
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 28),
         SizedBox(
           width: double.infinity,
-          height: 52,
+          height: 50,
           child: ElevatedButton(
             onPressed: loading ? null : onVerify,
             child: loading
@@ -331,13 +284,8 @@ class _CodeStep extends StatelessWidget {
                 : Text('인증 완료'.toUpperCase()),
           ),
         ),
-        const SizedBox(height: 40),
-        Center(
-          child: Text(
-            '[데모] 인증 코드: 123456',
-            style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.3)),
-          ),
-        ),
+        const SizedBox(height: 32),
+        const Center(child: Text('[데모] 인증 코드: 123456', style: TextStyle(fontSize: 11, color: AppColors.textMuted))),
       ],
     );
   }

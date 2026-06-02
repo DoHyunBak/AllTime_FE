@@ -1,16 +1,18 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 
+/// Light-mode card container.
+/// Replaces the dark glassmorphism style with clean white cards.
 class GlassContainer extends StatelessWidget {
   const GlassContainer({
     super.key,
     required this.child,
-    this.borderRadius = 8,
+    this.borderRadius = 16,
     this.padding = const EdgeInsets.all(20),
     this.margin,
-    this.blurSigma = 16.0,
-    this.opacity = 0.05,
-    this.borderOpacity = 0.08,
+    this.blurSigma = 0,   // Kept for API compatibility; unused in light mode
+    this.opacity = 1.0,   // Kept for API compatibility
+    this.borderOpacity = 1.0,
     this.width,
     this.height,
     this.boxShadow,
@@ -31,36 +33,27 @@ class GlassContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: margin,
+      width: width,
+      height: height,
+      padding: padding,
       decoration: BoxDecoration(
+        color: AppColors.bgSurface,
         borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(color: AppColors.borderLight, width: 0.5),
         boxShadow: boxShadow ?? [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            offset: const Offset(0, 8),
+            color: Colors.black.withValues(alpha: 0.05),
+            offset: const Offset(0, 2),
             blurRadius: 8,
-          )
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            offset: const Offset(0, 1),
+            blurRadius: 2,
+          ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-          child: Container(
-            width: width,
-            height: height,
-            padding: padding,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: opacity),
-              borderRadius: BorderRadius.circular(borderRadius),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: borderOpacity),
-                width: 1,
-              ),
-            ),
-            child: child,
-          ),
-        ),
-      ),
+      child: child,
     );
   }
 }

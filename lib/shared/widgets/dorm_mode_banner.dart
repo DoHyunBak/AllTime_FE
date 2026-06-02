@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
@@ -12,42 +11,32 @@ class DormModeBanner extends ConsumerWidget {
     final dormMode = ref.watch(dormModeProvider);
     if (!dormMode.isActive) return const SizedBox.shrink();
 
-    return ClipRRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.1),
-            border: Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.15), width: 1)),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      decoration: const BoxDecoration(
+        color: AppColors.primaryBg,
+        border: Border(bottom: BorderSide(color: AppColors.borderLight, width: 0.5)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.nfc, color: AppColors.primary, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              '${dormMode.dormName} 기숙사 모드 활성화됨',
+              style: const TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.w700),
+            ),
           ),
-          child: Row(
-            children: [
-              const Icon(Icons.nfc, color: Colors.white, size: 18),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  '${dormMode.dormName} 기숙사 모드 활성화됨',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () => ref.read(dormModeProvider.notifier).deactivate(),
-                child: const Icon(Icons.close, color: Colors.white54, size: 18),
-              ),
-            ],
+          GestureDetector(
+            onTap: () => ref.read(dormModeProvider.notifier).deactivate(),
+            child: const Icon(Icons.close, color: AppColors.textMuted, size: 18),
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
-// 홈 화면에서 NFC 태깅 시뮬레이션 버튼
 class NfcSimulateButton extends ConsumerWidget {
   const NfcSimulateButton({super.key});
 
@@ -60,51 +49,38 @@ class NfcSimulateButton extends ConsumerWidget {
         if (dormMode.isActive) {
           ref.read(dormModeProvider.notifier).deactivate();
         } else {
-          // 실제: NFC 태그에서 기숙사 이름 읽기
           ref.read(dormModeProvider.notifier).activate('인재관');
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('NFC 태깅 완료 — 인재관 기숙사 모드가 활성화되었습니다'),
-              backgroundColor: Colors.white.withValues(alpha: 0.2),
-              duration: const Duration(seconds: 2),
+            const SnackBar(
+              content: Text('NFC 태깅 완료 — 인재관 기숙사 모드가 활성화되었습니다'),
+              duration: Duration(seconds: 2),
             ),
           );
         }
       },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(100),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(100),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.3),
-                width: 1,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: dormMode.isActive ? AppColors.primaryBg : AppColors.bgElevated,
+          borderRadius: BorderRadius.circular(100),
+          border: Border.all(
+            color: dormMode.isActive ? AppColors.primary.withValues(alpha: 0.5) : AppColors.borderLight,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.nfc, size: 16, color: dormMode.isActive ? AppColors.primary : AppColors.textSecondary),
+            const SizedBox(width: 6),
+            Text(
+              dormMode.isActive ? '기숙사 모드 ON' : 'NFC 태깅 [데모]',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: dormMode.isActive ? AppColors.primary : AppColors.textSecondary,
               ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.nfc,
-                  size: 18,
-                  color: Colors.white,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  dormMode.isActive ? '기숙사 모드 ON' : 'NFC 태깅 [데모]',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          ],
         ),
       ),
     );

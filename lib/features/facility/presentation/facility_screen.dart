@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../domain/facility_provider.dart';
-import '../../meal_rating/presentation/meal_rating_dialog.dart';
 import '../../../core/payment/payment_provider.dart';
 
 class FacilityScreen extends ConsumerWidget {
@@ -14,12 +14,41 @@ class FacilityScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         children: [
+          // ── 예약 내역 바로가기 ────────────────────────────────
+          GestureDetector(
+            onTap: () => context.push('/reservation'),
+            child: GlassContainer(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                children: [
+                  Container(
+                    width: 36, height: 36,
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.primaryBg),
+                    child: const Icon(Icons.event_note_outlined, size: 18, color: AppColors.primary),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('예약 내역', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+                        SizedBox(height: 2),
+                        Text('나의 시설 예약 현황 확인', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, color: AppColors.textMuted, size: 20),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           _LaundrySection(),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
           _GymSection(),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
           _CafeteriaSection(),
           const SizedBox(height: 32),
         ],
@@ -28,9 +57,8 @@ class FacilityScreen extends ConsumerWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────
-// 세탁실
-// ─────────────────────────────────────────────────────────
+// ── 세탁실 ────────────────────────────────────────────────────────────
+
 class _LaundrySection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,9 +68,13 @@ class _LaundrySection extends ConsumerWidget {
     return _Card(
       title: '세탁실',
       icon: Icons.local_laundry_service,
-      trailing: Text(
-        '$available대 사용가능',
-        style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w700),
+      trailing: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: AppColors.primaryBg,
+          borderRadius: BorderRadius.circular(500),
+        ),
+        child: Text('$available대 가능', style: const TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w700)),
       ),
       child: GridView.count(
         crossAxisCount: 3,
@@ -63,109 +95,76 @@ class _MachineChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (color, label) = switch (machine.status) {
-      MachineStatus.available => (Colors.white, '사용가능'),
-      MachineStatus.running => (Colors.white.withValues(alpha: 0.7), machine.remainingMinutes != null ? '${machine.remainingMinutes}분 남음' : '사용중'),
-      MachineStatus.outOfOrder => (Colors.white.withValues(alpha: 0.3), '점검중'),
+    final (color, bgColor, label) = switch (machine.status) {
+      MachineStatus.available  => (AppColors.available, AppColors.primaryBg, '사용가능'),
+      MachineStatus.running    => (AppColors.running, const Color(0xFFEFF5FF), machine.remainingMinutes != null ? '${machine.remainingMinutes}분 남음' : '사용중'),
+      MachineStatus.outOfOrder => (AppColors.outOfOrder, const Color(0xFFFFF0F0), '점검중'),
     };
 
-    return GlassContainer(
-      padding: EdgeInsets.zero,
-      opacity: 0.05,
-      borderOpacity: 0.1,
-      borderRadius: 12,
-      blurSigma: 8,
+    return Container(
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 0.5),
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.local_laundry_service, size: 18, color: color),
-          const SizedBox(height: 6),
-          Text(
-            '${machine.id}번',
-            style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.4)),
-          ),
-          Text(
-            label,
-            style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.w700),
-            textAlign: TextAlign.center,
-          ),
+          const SizedBox(height: 5),
+          Text('${machine.id}번', style: TextStyle(fontSize: 10, color: color.withValues(alpha: 0.6))),
+          Text(label, style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.w700), textAlign: TextAlign.center),
         ],
       ),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────
-// 체육관
-// ─────────────────────────────────────────────────────────
+// ── 체육관 ────────────────────────────────────────────────────────────
+
 class _GymSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final gym = ref.watch(gymProvider);
 
-    final statusColor = switch (gym.label) {
-      '여유' => Colors.white,
-      '보통' => Colors.white.withValues(alpha: 0.8),
-      _ => Colors.white.withValues(alpha: 0.6),
+    final (statusColor, statusBg) = switch (gym.label) {
+      '여유'   => (AppColors.available, AppColors.primaryBg),
+      '보통'   => (AppColors.warning,   const Color(0xFFFFF8E8)),
+      _        => (AppColors.outOfOrder, const Color(0xFFFFF0F0)),
     };
 
     return _Card(
       title: '체육관',
       icon: Icons.fitness_center,
-      trailing: Text(
-        gym.label,
-        style: TextStyle(fontSize: 12, color: statusColor, fontWeight: FontWeight.w700),
+      trailing: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(color: statusBg, borderRadius: BorderRadius.circular(500)),
+        child: Text(gym.label, style: TextStyle(fontSize: 11, color: statusColor, fontWeight: FontWeight.w700)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text(
-                '현재 ${gym.occupancy}명 / 최대 ${gym.capacity}명',
-                style: const TextStyle(fontSize: 13, color: Colors.white70),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Stack(
-            children: [
-              Container(
-                height: 10,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-              ),
-              FractionallySizedBox(
-                widthFactor: gym.ratio,
-                child: Container(
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(5),
-                    boxShadow: [
-                      BoxShadow(color: Colors.white.withValues(alpha: 0.2), blurRadius: 4),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          Text('현재 ${gym.occupancy}명 / 최대 ${gym.capacity}명', style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(5),
+            child: LinearProgressIndicator(
+              value: gym.ratio,
+              minHeight: 8,
+              backgroundColor: AppColors.bgElevated,
+              valueColor: AlwaysStoppedAnimation<Color>(statusColor),
+            ),
           ),
           const SizedBox(height: 8),
-          Text(
-            '운영시간: 06:00 ~ 23:00',
-            style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.4)),
-          ),
+          const Text('운영시간: 06:00 ~ 23:00', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
         ],
       ),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────
-// 식당
-// ─────────────────────────────────────────────────────────
+// ── 식당 ──────────────────────────────────────────────────────────────
+
 class _CafeteriaSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -188,64 +187,48 @@ class _MenuRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassContainer(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      opacity: 0.05,
-      borderOpacity: 0.1,
-      borderRadius: 12,
-      blurSigma: 8,
+      decoration: BoxDecoration(
+        color: AppColors.bgElevated,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderLight, width: 0.5),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                menu.mealType,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white),
-              ),
-              Text(
-                '${menu.price}원',
-                style: const TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.w700),
-              ),
+              Text(menu.mealType, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+              Text('${menu.price}원', style: const TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.w700)),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            menu.items.join(' · '),
-            style: const TextStyle(fontSize: 13, color: Colors.white70),
-          ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 6),
+          Text(menu.items.join(' · '), style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+          const SizedBox(height: 14),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () {
                 final method = ref.read(paymentMethodProvider);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('단말기에 휴대폰을 태그해주세요. ($method)'),
-                    backgroundColor: Colors.white.withValues(alpha: 0.2),
-                    duration: const Duration(seconds: 2),
-                  ),
+                  SnackBar(content: Text('단말기에 휴대폰을 태그해주세요. ($method)'), duration: const Duration(seconds: 2)),
                 );
               },
-              icon: const Icon(Icons.nfc, size: 18),
-              label: Text(
-                '${menu.price}원 자동 결제'.toUpperCase(),
-              ),
+              icon: const Icon(Icons.nfc, size: 16),
+              label: Text('${menu.price}원 자동 결제'.toUpperCase()),
             ),
           ),
         ],
       ),
     );
   }
-
 }
 
-// ─────────────────────────────────────────────────────────
-// 공통 카드 위젯
-// ─────────────────────────────────────────────────────────
+// ── 공통 카드 ─────────────────────────────────────────────────────────
+
 class _Card extends StatelessWidget {
   const _Card({required this.title, required this.icon, required this.child, this.trailing});
   final String title;
@@ -256,29 +239,19 @@ class _Card extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassContainer(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 18, color: Colors.white),
+              Icon(icon, size: 17, color: AppColors.primary),
               const SizedBox(width: 8),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-              ),
-              if (trailing != null) ...[
-                const Spacer(),
-                trailing!,
-              ],
+              Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+              if (trailing != null) ...[const Spacer(), trailing!],
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           child,
         ],
       ),

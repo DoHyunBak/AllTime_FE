@@ -10,11 +10,13 @@ import '../../features/facility/presentation/facility_screen.dart';
 import '../../features/survey/presentation/survey_screen.dart';
 import '../../features/inter_school/presentation/inter_school_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
+import '../../features/settings/presentation/payment_method_screen.dart';
 import '../../features/settings/presentation/privacy_policy_screen.dart';
 import '../../features/settings/presentation/terms_of_service_screen.dart';
 
 import '../../features/community/presentation/board_detail_screen.dart';
 import '../../features/community/presentation/post_detail_screen.dart';
+import '../../features/reservation/presentation/reservation_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
@@ -38,6 +40,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/privacy', builder: (_, __) => const PrivacyPolicyScreen()),
       GoRoute(path: '/terms', builder: (_, __) => const TermsOfServiceScreen()),
       GoRoute(path: '/payment-method', builder: (_, __) => const PaymentMethodScreen()),
+      GoRoute(path: '/reservation', builder: (_, __) => const ReservationScreen()),
       GoRoute(
         path: '/board/:id',
         builder: (context, state) {
