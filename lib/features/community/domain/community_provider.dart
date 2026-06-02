@@ -346,7 +346,7 @@ class CommentNotifier extends StateNotifier<Map<String, List<Comment>>> {
     'p24': const [
       Comment(id: 'c17', postId: 'p24', author: '익명', content: '저도 비슷한 시간대에 거기 있었는데 못 봤어요 ㅠ', date: '05.31'),
       Comment(id: 'c18', postId: 'p24', author: '익명', content: 'CCTV 확인 요청해보세요', date: '05.31'),
-      Comment(id: 'c19', postId: 'p24', author: '관리자', content: 'CCTV 확인 요청은 학생처 방문 또는 내선 108로 연락 주시기 바랍니다.', date: '06.01'),
+      Comment(id: 'c19', postId: 'p24', author: '익명', content: 'CCTV 확인은 학생처 방문이나 내선 108로 요청하면 된대요', date: '06.01'),
     ],
     'p27': const [
       Comment(id: 'c20', postId: 'p27', author: '익명', content: '선풍기 필수 동의 ㅋㅋ 에어컨 틀어도 덥잖아요', date: '05.31'),
