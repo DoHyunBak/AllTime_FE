@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glass_container.dart';
+import '../../../shared/widgets/toss.dart';
 import '../domain/community_provider.dart';
 
 class CommunityScreen extends ConsumerWidget {
@@ -18,10 +19,10 @@ class CommunityScreen extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
         children: [
           // ── 기숙사 네트워크 바로가기 ──────────────────────────
-          _NetworkShortcut(),
+          Appear(index: 0, child: _NetworkShortcut()),
           const SizedBox(height: 16),
           // ── 게시판 목록 ─────────────────────────────────────
-          _BoardListSection(boards: boards),
+          Appear(index: 1, child: _BoardListSection(boards: boards)),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -42,7 +43,7 @@ class _NetworkShortcut extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return GestureDetector(
+    return TossPressable(
       onTap: () => context.push('/network'),
       child: GlassContainer(
         padding: const EdgeInsets.all(16),

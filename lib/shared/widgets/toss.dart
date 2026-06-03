@@ -215,6 +215,108 @@ class TossButton extends StatelessWidget {
 }
 
 /// ─────────────────────────────────────────────────────────────
+/// Appear — 진입 시 fade + slide-up 등장. index로 stagger(순차) 지연.
+/// ─────────────────────────────────────────────────────────────
+class Appear extends StatefulWidget {
+  const Appear({
+    super.key,
+    required this.child,
+    this.index = 0,
+    this.delayStep = const Duration(milliseconds: 70),
+    this.duration = const Duration(milliseconds: 420),
+    this.offsetY = 14,
+  });
+
+  final Widget child;
+  final int index;
+  final Duration delayStep;
+  final Duration duration;
+  final double offsetY;
+
+  @override
+  State<Appear> createState() => _AppearState();
+}
+
+class _AppearState extends State<Appear> with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(vsync: this, duration: widget.duration);
+  late final Animation<double> _curve = CurvedAnimation(parent: _c, curve: Curves.easeOutCubic);
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(widget.delayStep * widget.index, () {
+      if (mounted) _c.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _curve,
+      child: widget.child,
+      builder: (_, child) => Opacity(
+        opacity: _curve.value,
+        child: Transform.translate(
+          offset: Offset(0, (1 - _curve.value) * widget.offsetY),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+/// 큰 숫자 + 작은 단위(Toss 패턴) 텍스트.
+class MetricText extends StatelessWidget {
+  const MetricText({
+    super.key,
+    required this.value,
+    required this.unit,
+    this.valueSize = 26,
+    this.color,
+    this.unitColor,
+  });
+  final String value;
+  final String unit;
+  final double valueSize;
+  final Color? color;
+  final Color? unitColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: value,
+            style: TextStyle(
+              fontSize: valueSize,
+              fontWeight: FontWeight.w800,
+              color: color ?? AppColors.textPrimary,
+              fontFeatures: const [FontFeature.tabularFigures()],
+              height: 1.0,
+            ),
+          ),
+          TextSpan(
+            text: ' $unit',
+            style: TextStyle(
+              fontSize: valueSize * 0.5,
+              fontWeight: FontWeight.w600,
+              color: unitColor ?? AppColors.textMuted,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// ─────────────────────────────────────────────────────────────
 /// ShimmerLoader — ShaderMask 스위핑 그라데이션(리퀴드 메탈 시머).
 /// 스피너 대신 사용하는 로딩 상태. 웹 안전(외부 셰이더/에셋 불필요).
 /// ─────────────────────────────────────────────────────────────

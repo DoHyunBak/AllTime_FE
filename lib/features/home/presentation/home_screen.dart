@@ -8,6 +8,7 @@ import '../../../core/dorm_mode/location_dorm_detector.dart';
 import '../../../shared/widgets/offline_banner.dart';
 import '../../../shared/widgets/dorm_mode_banner.dart';
 import '../../../shared/widgets/glass_container.dart';
+import '../../../shared/widgets/toss.dart';
 import '../../facility/domain/facility_provider.dart';
 import '../../community/domain/community_provider.dart';
 import '../../survey/domain/survey_provider.dart';
@@ -20,11 +21,17 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _loading = true;
+
   @override
   void initState() {
     super.initState();
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (mounted) LocationDormDetector.startDetecting(context, ref);
+    });
+    // 데이터 페치 시뮬레이션 → 스켈레톤 후 콘텐츠
+    Future.delayed(const Duration(milliseconds: 650), () {
+      if (mounted) setState(() => _loading = false);
     });
   }
 
@@ -42,24 +49,71 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         children: [
           const OfflineBanner(),
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(20),
-              children: [
-                _GreetingHero(),
-                const SizedBox(height: 16),
-                _DormStatusBoard(),
-                const SizedBox(height: 16),
-                _QuickActions(),
-                const SizedBox(height: 16),
-                _ActiveSurveyTeaser(),
-                const SizedBox(height: 16),
-                _AnnouncementsCard(),
-                const SizedBox(height: 16),
-                _HotPostsCard(),
-                const SizedBox(height: 20),
-              ],
-            ),
+            child: _loading
+                ? const _HomeSkeleton()
+                : ListView(
+                    padding: const EdgeInsets.all(20),
+                    children: [
+                      Appear(index: 0, child: _GreetingHero()),
+                      const SizedBox(height: 16),
+                      Appear(index: 1, child: _DormStatusBoard()),
+                      const SizedBox(height: 16),
+                      Appear(index: 2, child: _QuickActions()),
+                      const SizedBox(height: 16),
+                      Appear(index: 3, child: _ActiveSurveyTeaser()),
+                      const SizedBox(height: 16),
+                      Appear(index: 4, child: _AnnouncementsCard()),
+                      const SizedBox(height: 16),
+                      Appear(index: 5, child: _HotPostsCard()),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── 로딩 스켈레톤 ──────────────────────────────────────────────────────
+
+class _HomeSkeleton extends StatelessWidget {
+  const _HomeSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        _skelCard(height: 96),
+        const SizedBox(height: 16),
+        _skelCard(height: 150),
+        const SizedBox(height: 16),
+        Row(
+          children: List.generate(4, (i) => Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(right: i < 3 ? 12 : 0),
+              child: const ShimmerSkeleton(height: 72, radius: 14),
+            ),
+          )),
+        ),
+        const SizedBox(height: 16),
+        _skelCard(height: 84),
+        const SizedBox(height: 16),
+        _skelCard(height: 160),
+      ],
+    );
+  }
+
+  Widget _skelCard({required double height}) {
+    return GlassContainer(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const ShimmerSkeleton(width: 120, height: 14),
+          const SizedBox(height: 14),
+          ShimmerSkeleton(height: height - 60),
         ],
       ),
     );
@@ -109,7 +163,7 @@ class _GreetingHero extends ConsumerWidget {
           ),
           if (urgent != null) ...[
             const SizedBox(height: 16),
-            GestureDetector(
+            TossPressable(
               onTap: () => context.push('/post/${urgent.id}'),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
@@ -172,7 +226,7 @@ class _DormStatusBoard extends ConsumerWidget {
               const SizedBox(width: 6),
               Text('기숙사 현황', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: isDark ? Colors.white : AppColors.textPrimary)),
               const Spacer(),
-              GestureDetector(
+              TossPressable(
                 onTap: () => context.go('/facility'),
                 child: Text('시설 전체', style: TextStyle(fontSize: 12, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary, fontWeight: FontWeight.w500)),
               ),
@@ -181,9 +235,9 @@ class _DormStatusBoard extends ConsumerWidget {
           const SizedBox(height: 14),
           Row(
             children: [
-              _StatusTile(icon: Icons.local_laundry_service, label: '세탁기', value: '$washAvail대', sub: '사용가능', color: washAvail > 0 ? AppColors.available : AppColors.outOfOrder),
+              _StatusTile(icon: Icons.local_laundry_service, label: '세탁기', value: '$washAvail', unit: '대', sub: '사용가능', color: washAvail > 0 ? AppColors.available : AppColors.outOfOrder),
               const SizedBox(width: 10),
-              _StatusTile(icon: Icons.dry_cleaning, label: '건조기', value: '$dryAvail대', sub: '사용가능', color: dryAvail > 0 ? AppColors.available : AppColors.outOfOrder),
+              _StatusTile(icon: Icons.dry_cleaning, label: '건조기', value: '$dryAvail', unit: '대', sub: '사용가능', color: dryAvail > 0 ? AppColors.available : AppColors.outOfOrder),
             ],
           ),
           const SizedBox(height: 10),
@@ -191,7 +245,7 @@ class _DormStatusBoard extends ConsumerWidget {
             children: [
               _StatusTile(icon: Icons.fitness_center, label: '헬스장', value: gym.label, sub: '${gym.occupancy}/${gym.capacity}명', color: gymColor),
               const SizedBox(width: 10),
-              _StatusTile(icon: Icons.restaurant, label: '오늘 점심', value: '${lunch.nutrition.kcal}kcal', sub: lunch.items.first, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
+              _StatusTile(icon: Icons.restaurant, label: '오늘 점심', value: '${lunch.nutrition.kcal}', unit: 'kcal', sub: lunch.items.first, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
             ],
           ),
         ],
@@ -201,10 +255,11 @@ class _DormStatusBoard extends ConsumerWidget {
 }
 
 class _StatusTile extends StatelessWidget {
-  const _StatusTile({required this.icon, required this.label, required this.value, required this.sub, required this.color});
+  const _StatusTile({required this.icon, required this.label, required this.value, required this.sub, required this.color, this.unit});
   final IconData icon;
   final String label;
   final String value;
+  final String? unit;
   final String sub;
   final Color color;
 
@@ -232,8 +287,11 @@ class _StatusTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(label, style: TextStyle(fontSize: 10, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 2),
+                  unit != null
+                      ? MetricText(value: value, unit: unit!, valueSize: 18, color: color)
+                      : Text(value, style: TextStyle(fontSize: 16, color: color, fontWeight: FontWeight.w900), overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 1),
-                  Text(value, style: TextStyle(fontSize: 14, color: color, fontWeight: FontWeight.w900), overflow: TextOverflow.ellipsis),
                   Text(sub, style: TextStyle(fontSize: 9, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary), overflow: TextOverflow.ellipsis),
                 ],
               ),
@@ -274,7 +332,7 @@ class _ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
-      child: GestureDetector(
+      child: TossPressable(
         onTap: onTap,
         child: GlassContainer(
           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -301,7 +359,7 @@ class _ActiveSurveyTeaser extends ConsumerWidget {
     if (survey == null) return const SizedBox.shrink();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return GestureDetector(
+    return TossPressable(
       onTap: () => context.go('/survey'),
       child: GlassContainer(
         child: Row(
@@ -392,7 +450,7 @@ class _SectionHeading extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: isDark ? Colors.white : AppColors.textPrimary)),
-        GestureDetector(
+        TossPressable(
           onTap: onMore,
           child: Text('더보기', style: TextStyle(fontSize: 12, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary, fontWeight: FontWeight.w500)),
         ),
@@ -411,7 +469,7 @@ class _LineItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return GestureDetector(
+    return TossPressable(
       onTap: () => context.push('/post/$id'),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 7),
