@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../core/auth/user_model.dart';
 import '../../../shared/widgets/app_background.dart';
+import '../../../shared/widgets/toss.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -92,10 +93,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           const Center(
                             child: Padding(
                               padding: EdgeInsets.symmetric(vertical: 24),
-                              child: CircularProgressIndicator(
-                                color: AppColors.primary,
-                                strokeWidth: 2,
-                              ),
+                              child: FuturisticLoader(),
                             ),
                           )
                         else

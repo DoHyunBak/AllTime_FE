@@ -285,6 +285,86 @@ class _SweepTranslate extends GradientTransform {
       Matrix4.translationValues(dx, 0, 0);
 }
 
+/// ─────────────────────────────────────────────────────────────
+/// FuturisticLoader — 스피너 대체용 회전 스위프 링(브랜드 그린).
+/// 연속 회전 + 가속/감속 커브로 유기적인 로딩 모션. 의존성/에셋 없음.
+/// ─────────────────────────────────────────────────────────────
+class FuturisticLoader extends StatefulWidget {
+  const FuturisticLoader({super.key, this.size = 36, this.color, this.strokeWidth = 3.5});
+  final double size;
+  final Color? color;
+  final double strokeWidth;
+
+  @override
+  State<FuturisticLoader> createState() => _FuturisticLoaderState();
+}
+
+class _FuturisticLoaderState extends State<FuturisticLoader> with SingleTickerProviderStateMixin {
+  late final AnimationController _c =
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 1100))..repeat();
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = widget.color ?? AppColors.primary;
+    return SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: RepaintBoundary(
+        child: AnimatedBuilder(
+          animation: _c,
+          builder: (_, __) => CustomPaint(
+            painter: _SweepRingPainter(_c.value, color, widget.strokeWidth),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SweepRingPainter extends CustomPainter {
+  _SweepRingPainter(this.t, this.color, this.stroke);
+  final double t;
+  final Color color;
+  final double stroke;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final center = rect.center;
+    final radius = (size.shortestSide - stroke) / 2;
+    final start = t * 6.2831853; // 회전
+
+    // 트랙
+    final track = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..color = color.withValues(alpha: 0.12);
+    canvas.drawCircle(center, radius, track);
+
+    // 그라데이션 스위프 아크
+    final sweep = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..strokeCap = StrokeCap.round
+      ..shader = SweepGradient(
+        startAngle: 0,
+        endAngle: 6.2831853,
+        colors: [color.withValues(alpha: 0.0), color],
+        transform: GradientRotation(start),
+      ).createShader(rect);
+    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), start, 4.4, false, sweep);
+  }
+
+  @override
+  bool shouldRepaint(covariant _SweepRingPainter old) => old.t != t || old.color != color;
+}
+
 /// 시머가 적용된 스켈레톤 블록 (로딩 자리표시자).
 class ShimmerSkeleton extends StatelessWidget {
   const ShimmerSkeleton({
