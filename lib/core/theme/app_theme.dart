@@ -3,6 +3,7 @@ import 'app_colors.dart';
 import '../../shared/widgets/toss.dart';
 
 abstract final class AppTheme {
+  // 1순위 Paperlogy(페이퍼로지) — 미등록 환경에선 아래 순서로 폴백
   static const _fontFamilyFallback = ['Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', 'sans-serif'];
 
   static TextTheme _buildTextTheme(Brightness brightness) {
@@ -98,7 +99,7 @@ abstract final class AppTheme {
         outline: AppColors.borderLight,
       ),
       scaffoldBackgroundColor: Colors.transparent,
-      fontFamily: 'Apple SD Gothic Neo',
+      fontFamily: 'Paperlogy',
       textTheme: _buildTextTheme(Brightness.light),
       appBarTheme: _buildAppBarTheme(Brightness.light),
       elevatedButtonTheme: _elevatedButtonTheme,
@@ -150,7 +151,7 @@ abstract final class AppTheme {
         outline: AppColors.borderDark,
       ),
       scaffoldBackgroundColor: Colors.transparent,
-      fontFamily: 'Apple SD Gothic Neo',
+      fontFamily: 'Paperlogy',
       textTheme: _buildTextTheme(Brightness.dark),
       appBarTheme: _buildAppBarTheme(Brightness.dark),
       elevatedButtonTheme: _elevatedButtonTheme,
