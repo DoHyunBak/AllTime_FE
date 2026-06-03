@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/app_background.dart';
 import '../../../shared/widgets/glass_container.dart';
+import '../../../shared/widgets/toss.dart';
 import '../domain/community_provider.dart';
 
 class BoardDetailScreen extends ConsumerWidget {
@@ -49,7 +50,9 @@ class BoardDetailScreen extends ConsumerWidget {
                 itemCount: posts.length,
                 itemBuilder: (context, index) {
                   final p = posts[index];
-                  return GestureDetector(
+                  return Appear(
+                    index: index,
+                    child: TossPressable(
                     onTap: () => context.push('/post/${p.id}'),
                     child: GlassContainer(
                       margin: const EdgeInsets.only(bottom: 10),
@@ -94,6 +97,7 @@ class BoardDetailScreen extends ConsumerWidget {
                           ),
                         ],
                       ),
+                    ),
                     ),
                   );
                 },

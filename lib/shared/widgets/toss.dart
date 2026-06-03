@@ -271,6 +271,46 @@ class _AppearState extends State<Appear> with SingleTickerProviderStateMixin {
   }
 }
 
+/// ─────────────────────────────────────────────────────────────
+/// DelayedReveal — [duration] 동안 [skeleton]을 보여준 뒤 [child]로 전환.
+/// 각 화면을 stateful로 바꾸지 않고도 "스켈레톤→콘텐츠" 로딩 경험 제공.
+/// ─────────────────────────────────────────────────────────────
+class DelayedReveal extends StatefulWidget {
+  const DelayedReveal({
+    super.key,
+    required this.skeleton,
+    required this.child,
+    this.duration = const Duration(milliseconds: 600),
+  });
+
+  final Widget skeleton;
+  final Widget child;
+  final Duration duration;
+
+  @override
+  State<DelayedReveal> createState() => _DelayedRevealState();
+}
+
+class _DelayedRevealState extends State<DelayedReveal> {
+  bool _ready = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(widget.duration, () {
+      if (mounted) setState(() => _ready = true);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 280),
+      child: _ready ? widget.child : widget.skeleton,
+    );
+  }
+}
+
 /// 큰 숫자 + 작은 단위(Toss 패턴) 텍스트.
 class MetricText extends StatelessWidget {
   const MetricText({

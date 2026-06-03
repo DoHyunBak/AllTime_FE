@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../shared/widgets/glass_container.dart';
 import '../../../shared/widgets/app_background.dart';
+import '../../../shared/widgets/toss.dart';
 import '../domain/survey_provider.dart';
 
 class SurveyScreen extends ConsumerWidget {
@@ -40,11 +41,19 @@ class SurveyScreen extends ConsumerWidget {
                   )
                 ),
               )
-            : ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: surveys.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 16),
-                itemBuilder: (ctx, i) => _SurveyCard(survey: surveys[i]),
+            : DelayedReveal(
+                skeleton: ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: 3,
+                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                  itemBuilder: (_, __) => const ShimmerSkeleton(height: 180, radius: 16),
+                ),
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: surveys.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                  itemBuilder: (ctx, i) => Appear(index: i, child: _SurveyCard(survey: surveys[i])),
+                ),
               ),
         floatingActionButton: isAdmin
             ? FloatingActionButton(

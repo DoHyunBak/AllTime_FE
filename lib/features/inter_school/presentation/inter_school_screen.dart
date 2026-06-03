@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../shared/widgets/app_background.dart';
 import '../../../shared/widgets/glass_container.dart';
+import '../../../shared/widgets/toss.dart';
 import '../domain/inter_school_provider.dart';
 
 class InterSchoolScreen extends ConsumerStatefulWidget {
@@ -169,7 +170,7 @@ class _OtherSchoolTab extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       itemCount: schools.length,
       separatorBuilder: (_, __) => const SizedBox(height: 14),
-      itemBuilder: (ctx, i) => _SchoolCard(school: schools[i]),
+      itemBuilder: (ctx, i) => Appear(index: i, child: _SchoolCard(school: schools[i])),
     );
   }
 }
@@ -277,7 +278,7 @@ class _MatchTab extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               itemCount: matches.length,
               separatorBuilder: (_, __) => const SizedBox(height: 14),
-              itemBuilder: (ctx, i) => _MatchCard(match: matches[i]),
+              itemBuilder: (ctx, i) => Appear(index: i, child: _MatchCard(match: matches[i])),
             ),
       floatingActionButton: isAdmin
           ? FloatingActionButton(

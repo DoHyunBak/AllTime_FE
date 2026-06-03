@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/app_background.dart';
 import '../../../shared/widgets/glass_container.dart';
+import '../../../shared/widgets/toss.dart';
 import '../domain/reservation_provider.dart';
 
 class ReservationScreen extends ConsumerStatefulWidget {
@@ -77,9 +78,12 @@ class _ReservationScreenState extends ConsumerState<ReservationScreen> {
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemCount: reservations.length,
-                    itemBuilder: (context, index) => _ReservationCard(
-                      reservation: reservations[index],
-                      onCancel: () => _showCancelDialog(reservations[index]),
+                    itemBuilder: (context, index) => Appear(
+                      index: index,
+                      child: _ReservationCard(
+                        reservation: reservations[index],
+                        onCancel: () => _showCancelDialog(reservations[index]),
+                      ),
                     ),
                   ),
       ),

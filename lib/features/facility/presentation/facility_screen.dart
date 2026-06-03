@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glass_container.dart';
+import '../../../shared/widgets/toss.dart';
 import '../domain/facility_provider.dart';
 
 class FacilityScreen extends ConsumerWidget {
@@ -13,11 +14,26 @@ class FacilityScreen extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: ListView(
+      body: DelayedReveal(
+        skeleton: ListView(
+          padding: const EdgeInsets.all(16),
+          children: const [
+            ShimmerSkeleton(height: 64, radius: 16),
+            SizedBox(height: 16),
+            ShimmerSkeleton(height: 220, radius: 16),
+            SizedBox(height: 14),
+            ShimmerSkeleton(height: 130, radius: 16),
+            SizedBox(height: 14),
+            ShimmerSkeleton(height: 200, radius: 16),
+          ],
+        ),
+        child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // ── 예약 내역 바로가기 ────────────────────────────────
-          GestureDetector(
+          Appear(
+            index: 0,
+            child: TossPressable(
             onTap: () => context.push('/reservation'),
             child: GlassContainer(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -44,14 +60,16 @@ class FacilityScreen extends ConsumerWidget {
               ),
             ),
           ),
+          ),
           const SizedBox(height: 16),
-          _LaundrySection(),
+          Appear(index: 1, child: _LaundrySection()),
           const SizedBox(height: 14),
-          _GymSection(),
+          Appear(index: 2, child: _GymSection()),
           const SizedBox(height: 14),
-          _CafeteriaSection(),
+          Appear(index: 3, child: _CafeteriaSection()),
           const SizedBox(height: 32),
         ],
+        ),
       ),
     );
   }
