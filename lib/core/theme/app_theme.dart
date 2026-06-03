@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
+import '../../shared/widgets/toss.dart';
 
 abstract final class AppTheme {
-  static const _fontFamilyFallback = ['Apple SD Gothic Neo', 'sans-serif'];
+  static const _fontFamilyFallback = ['Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', 'sans-serif'];
 
   static TextTheme _buildTextTheme(Brightness brightness) {
     final color = brightness == Brightness.light ? AppColors.textPrimary : AppColors.textPrimaryDark;
@@ -40,31 +41,32 @@ abstract final class AppTheme {
     );
   }
 
+  // Toss: 7px 라운드, elevation 없음, padding 14/20
   static ElevatedButtonThemeData get _elevatedButtonTheme => ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: AppColors.primary,
       foregroundColor: Colors.white,
       elevation: 0,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+      shadowColor: Colors.transparent,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       minimumSize: const Size(0, 48),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(500)),
-      textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: 0.5),
-      animationDuration: const Duration(milliseconds: 120),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+      textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
     ),
   );
 
   static InputDecorationTheme _buildInputDecorationTheme(Brightness brightness) {
     final fillColor = brightness == Brightness.light ? AppColors.bgElevated : AppColors.bgElevatedDark;
-    final borderColor = brightness == Brightness.light ? AppColors.borderLight : AppColors.borderDark;
 
+    // Toss: rest 무테두리 + f2f4f6 필, focus 2px 블루 링, 48px 탭타겟
     return InputDecorationTheme(
       filled: true,
-      fillColor: fillColor.withValues(alpha: 0.5),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: borderColor)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: borderColor)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary, width: 1.5)),
-      hintStyle: TextStyle(fontSize: 14, color: brightness == Brightness.light ? AppColors.textMuted : AppColors.textMutedDark),
+      fillColor: fillColor,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+      hintStyle: TextStyle(fontSize: 15, color: brightness == Brightness.light ? AppColors.textDimmed : AppColors.textMutedDark),
     );
   }
 
@@ -76,8 +78,8 @@ abstract final class AppTheme {
       color: color.withValues(alpha: 0.7),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24), // Apple Style
-        side: BorderSide(color: borderColor.withValues(alpha: 0.5), width: 0.5),
+        borderRadius: BorderRadius.circular(16), // Toss: 12~16px
+        side: BorderSide(color: borderColor, width: 1),
       ),
       margin: EdgeInsets.zero,
     );
@@ -118,6 +120,7 @@ abstract final class AppTheme {
         elevation: 0,
       ),
       extensions: [
+        TossColors.light,
         GlassTheme(
           blurSigma: 15.0,
           opacity: 0.1,
@@ -169,6 +172,7 @@ abstract final class AppTheme {
         elevation: 0,
       ),
       extensions: [
+        TossColors.light,
         GlassTheme(
           blurSigma: 15.0,
           opacity: 0.05,

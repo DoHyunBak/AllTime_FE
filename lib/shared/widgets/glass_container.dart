@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
-/// 깔끔한 불투명 흰색 카드.
-/// (글래스모피즘/블러는 제거 — 평범하고 깨끗한 카드 + 부드러운 그림자)
+/// Toss 스타일 카드.
+/// 흰색 면 + 1px #e5e8eb 보더 + 16px 라운드 + 4% 소프트 섀도우.
+/// (별칭 GlassContainer 로도 사용 — 기존 호출부 호환)
 class GlassCard extends StatelessWidget {
   const GlassCard({
     super.key,
     required this.child,
-    this.borderRadius = 20,
+    this.borderRadius = 16,
     this.padding = const EdgeInsets.all(20),
     this.margin,
     this.width,
@@ -25,8 +26,6 @@ class GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(borderRadius);
-
     return Container(
       width: isFullWidth ? double.infinity : width,
       height: height,
@@ -34,14 +33,14 @@ class GlassCard extends StatelessWidget {
       padding: padding,
       decoration: BoxDecoration(
         color: AppColors.bgSurface,
-        borderRadius: radius,
-        border: Border.all(color: AppColors.borderLight, width: 0.5),
-        boxShadow: [
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(color: AppColors.borderLight, width: 1),
+        boxShadow: const [
+          // Toss: 4% 단일 소프트 섀도우 (스택 금지)
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-            spreadRadius: -2,
+            color: Color.fromRGBO(25, 31, 40, 0.04),
+            blurRadius: 3,
+            offset: Offset(0, 1),
           ),
         ],
       ),
