@@ -143,17 +143,21 @@ class _TossPressableState extends State<TossPressable> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     final enabled = widget.onTap != null;
-    return GestureDetector(
-      onTapDown: enabled ? _down : null,
-      onTapUp: enabled ? _up : null,
-      onTapCancel: enabled ? _up : null,
-      onTap: enabled
-          ? () {
-              if (widget.haptic) HapticFeedback.lightImpact();
-              widget.onTap!();
-            }
-          : null,
-      child: ScaleTransition(scale: _c, child: widget.child),
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      child: GestureDetector(
+        onTapDown: enabled ? _down : null,
+        onTapUp: enabled ? _up : null,
+        onTapCancel: enabled ? _up : null,
+        onTap: enabled
+            ? () {
+                if (widget.haptic) HapticFeedback.lightImpact();
+                widget.onTap!();
+              }
+            : null,
+        child: ScaleTransition(scale: _c, child: widget.child),
+      ),
     );
   }
 }

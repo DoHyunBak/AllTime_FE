@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/auth/auth_provider.dart';
@@ -224,6 +225,7 @@ class _SurveyCardState extends ConsumerState<_SurveyCard> {
                         child: ElevatedButton(
                           onPressed: () {
                             notifier.vote(survey.id, _selectedOption!);
+                            HapticFeedback.mediumImpact(); // 성공 피크 햅틱
                             setState(() {});
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(

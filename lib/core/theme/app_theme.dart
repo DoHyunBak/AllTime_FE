@@ -5,6 +5,8 @@ import '../../shared/widgets/toss.dart';
 abstract final class AppTheme {
   // 1순위 Paperlogy(페이퍼로지) — 미등록 환경에선 아래 순서로 폴백
   static const _fontFamilyFallback = ['Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', 'sans-serif'];
+  // 고정 폭 숫자 — 금액/카운트/날짜 정렬 흐트러짐 방지 (전역 적용)
+  static const _tabular = [FontFeature.tabularFigures()];
 
   static TextTheme _buildTextTheme(Brightness brightness) {
     final color = brightness == Brightness.light ? AppColors.textPrimary : AppColors.textPrimaryDark;
@@ -12,16 +14,16 @@ abstract final class AppTheme {
     final mutedColor = brightness == Brightness.light ? AppColors.textMuted : AppColors.textMutedDark;
 
     return TextTheme(
-      displaySmall:  TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: color,   fontFamilyFallback: _fontFamilyFallback),
-      headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: color,   height: 1.3, fontFamilyFallback: _fontFamilyFallback),
-      titleLarge:    TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: color,   fontFamilyFallback: _fontFamilyFallback),
-      titleMedium:   TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color,   fontFamilyFallback: _fontFamilyFallback),
-      titleSmall:    TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: color,   fontFamilyFallback: _fontFamilyFallback),
-      bodyLarge:     TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: color,   fontFamilyFallback: _fontFamilyFallback),
-      bodyMedium:    TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: secondaryColor, fontFamilyFallback: _fontFamilyFallback),
-      bodySmall:     TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: mutedColor,     fontFamilyFallback: _fontFamilyFallback),
-      labelLarge:    TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color,   letterSpacing: 1.4, fontFamilyFallback: _fontFamilyFallback),
-      labelSmall:    TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: secondaryColor, fontFamilyFallback: _fontFamilyFallback),
+      displaySmall:  TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: color,   fontFamilyFallback: _fontFamilyFallback, fontFeatures: _tabular),
+      headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: color,   height: 1.3, fontFamilyFallback: _fontFamilyFallback, fontFeatures: _tabular),
+      titleLarge:    TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: color,   fontFamilyFallback: _fontFamilyFallback, fontFeatures: _tabular),
+      titleMedium:   TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color,   fontFamilyFallback: _fontFamilyFallback, fontFeatures: _tabular),
+      titleSmall:    TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: color,   fontFamilyFallback: _fontFamilyFallback, fontFeatures: _tabular),
+      bodyLarge:     TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: color,   fontFamilyFallback: _fontFamilyFallback, fontFeatures: _tabular),
+      bodyMedium:    TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: secondaryColor, fontFamilyFallback: _fontFamilyFallback, fontFeatures: _tabular),
+      bodySmall:     TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: mutedColor,     fontFamilyFallback: _fontFamilyFallback, fontFeatures: _tabular),
+      labelLarge:    TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color,   letterSpacing: 1.4, fontFamilyFallback: _fontFamilyFallback, fontFeatures: _tabular),
+      labelSmall:    TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: secondaryColor, fontFamilyFallback: _fontFamilyFallback, fontFeatures: _tabular),
     );
   }
 
