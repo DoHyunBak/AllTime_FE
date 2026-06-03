@@ -28,9 +28,7 @@ class MainShell extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final barBgColor = isDark 
-        ? AppColors.bgSurfaceDark.withValues(alpha: 0.8) 
-        : Colors.white.withValues(alpha: 0.8);
+    const barBgColor = AppColors.bgSurface; // 불투명 흰색 (글래스 제거)
     final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
     final textColor = isDark ? Colors.white : AppColors.textPrimary;
 

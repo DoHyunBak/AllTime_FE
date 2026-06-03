@@ -244,9 +244,9 @@ class _FacilityChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.4),
+        color: AppColors.bgElevated,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white.withValues(alpha: 0.8), width: 1.0),
+        border: Border.all(color: AppColors.borderLight, width: 1.0),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

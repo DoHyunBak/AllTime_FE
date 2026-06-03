@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -105,14 +104,12 @@ class _MealRatingSheetState extends State<_MealRatingSheet> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-      child: Container(
+    return Container(
         decoration: BoxDecoration(
-          color: isDark ? Colors.white.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.7),
+          color: AppColors.bgSurface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
           border: Border.all(
-            color: isDark ? Colors.white.withValues(alpha: 0.2) : AppColors.textPrimary.withValues(alpha: 0.1), 
+            color: AppColors.borderLight,
             width: 1
           ),
         ),
@@ -296,7 +293,6 @@ class _MealRatingSheetState extends State<_MealRatingSheet> {
                   ),
                 ],
               ),
-      ),
     );
   }
 }

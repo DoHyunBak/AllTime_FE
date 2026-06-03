@@ -276,12 +276,10 @@ class _OptionButton extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: selected 
-            ? AppColors.primary 
-            : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.4)),
+        color: selected ? AppColors.primary : AppColors.bgElevated,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: selected ? AppColors.primary : (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white.withValues(alpha: 0.8)),
+          color: selected ? AppColors.primary : AppColors.borderLight,
           width: 1.5,
         ),
       ),

@@ -215,9 +215,9 @@ class _StatusTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.2),
+          color: AppColors.bgElevated,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.6), width: 0.5),
+          border: Border.all(color: AppColors.borderLight, width: 0.5),
         ),
         child: Row(
           children: [

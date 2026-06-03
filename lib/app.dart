@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
-import 'core/theme/theme_mode_provider.dart';
 import 'features/splash/splash_screen.dart';
 import 'shared/widgets/device_frame.dart';
 
@@ -25,15 +24,12 @@ class _AllTimeAppState extends ConsumerState<AllTimeApp> {
       statusBarBrightness: Brightness.light,
     ));
 
-    final themeMode = ref.watch(themeModeProvider);
-
     if (_showSplash) {
       return MaterialApp(
         title: 'AllTime',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        themeMode: themeMode,
+        themeMode: ThemeMode.light, // 라이트모드 고정 (다크모드 미지원)
         builder: deviceFrameBuilder,
         home: SplashScreen(onComplete: () => setState(() => _showSplash = false)),
       );
@@ -44,8 +40,7 @@ class _AllTimeAppState extends ConsumerState<AllTimeApp> {
       title: 'AllTime',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
-      themeMode: themeMode,
+      themeMode: ThemeMode.light, // 라이트모드 고정 (다크모드 미지원)
       builder: deviceFrameBuilder,
       routerConfig: router,
     );

@@ -33,9 +33,7 @@ class PaymentMethodScreen extends ConsumerWidget {
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
               child: AppBar(
-                backgroundColor: isDark 
-                    ? Colors.black.withValues(alpha: 0.2) 
-                    : Colors.white.withValues(alpha: 0.5),
+                backgroundColor: AppColors.bgSurface,
                 elevation: 0,
                 leading: IconButton(
                   icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : AppColors.textPrimary),

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/feedback/feedback_service.dart';
+import '../../../../core/theme/app_colors.dart';
 
 /// 피드백 FAB — 항상 접근 가능한 의견 수렴 창구
-///
-/// 디자인: 글래스모피즘 스타일로 변경
 class FeedbackFab extends StatelessWidget {
   const FeedbackFab({super.key});
 
@@ -11,12 +10,11 @@ class FeedbackFab extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
       onPressed: () => FeedbackService.open(context),
-      backgroundColor: Colors.white.withValues(alpha: 0.2),
+      backgroundColor: AppColors.primary,
       foregroundColor: Colors.white,
-      elevation: 0,
+      elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(100),
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
       ),
       icon: const Icon(Icons.edit_note_outlined, size: 20),
       label: const Text(
