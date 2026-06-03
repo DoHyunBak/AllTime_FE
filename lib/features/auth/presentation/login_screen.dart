@@ -102,30 +102,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           Column(
                             children: [
                               _SocialButton(
-                                label: '구글로 로그인',
+                                label: 'Google로 시작하기',
                                 bgColor: Colors.white,
                                 borderColor: AppColors.borderLight,
-                                textColor: AppColors.textPrimary,
-                                iconColor: const Color(0xFF4285F4),
-                                icon: Icons.g_mobiledata,
+                                textColor: const Color(0xFF191F28),
+                                leading: const _GoogleMark(),
                                 onTap: () => _login(LoginProvider.google),
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 12),
                               _SocialButton(
-                                label: '카카오로 로그인',
+                                label: 'Kakao로 시작하기',
                                 bgColor: const Color(0xFFFEE500),
                                 borderColor: const Color(0xFFFEE500),
                                 textColor: const Color(0xFF191919),
-                                icon: Icons.chat_bubble,
+                                leading: const Icon(Icons.chat_bubble, color: Color(0xFF191919), size: 22),
                                 onTap: () => _login(LoginProvider.kakao),
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 12),
                               _SocialButton(
-                                label: '네이버로 로그인',
+                                label: 'Naver로 시작하기',
                                 bgColor: const Color(0xFF03C75A),
                                 borderColor: const Color(0xFF03C75A),
                                 textColor: Colors.white,
-                                icon: Icons.language,
+                                leading: const _NaverMark(),
                                 onTap: () => _login(LoginProvider.naver),
                               ),
                             ],
@@ -187,16 +186,14 @@ class _SocialButton extends StatelessWidget {
     required this.bgColor,
     required this.borderColor,
     required this.textColor,
-    required this.icon,
+    required this.leading,
     required this.onTap,
-    this.iconColor,
   });
   final String label;
   final Color bgColor;
   final Color borderColor;
   final Color textColor;
-  final Color? iconColor;
-  final IconData icon;
+  final Widget leading;
   final VoidCallback onTap;
 
   @override
@@ -205,20 +202,68 @@ class _SocialButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        height: 50,
+        height: 56,
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(color: borderColor, width: 1),
           boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 4, offset: const Offset(0, 2))],
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        // 아이콘은 좌측 고정, 라벨은 중앙 정렬
+        child: Stack(
+          alignment: Alignment.center,
           children: [
-            Icon(icon, color: iconColor ?? textColor, size: 22),
-            const SizedBox(width: 10),
-            Text(label, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: textColor)),
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Align(alignment: Alignment.centerLeft, child: leading),
+            ),
+            Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: textColor)),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 구글 멀티컬러 'G' 마크 (에셋 없이 표현)
+class _GoogleMark extends StatelessWidget {
+  const _GoogleMark();
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      width: 24,
+      height: 24,
+      child: Center(
+        child: Text(
+          'G',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF4285F4),
+            height: 1.0,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 네이버 'N' 마크
+class _NaverMark extends StatelessWidget {
+  const _NaverMark();
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 26,
+      height: 26,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.22),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Center(
+        child: Text(
+          'N',
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: Colors.white, height: 1.0),
         ),
       ),
     );

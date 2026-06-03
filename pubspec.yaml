@@ -45,3 +45,6 @@ flutter:
 
   assets:
     - logo.jpg
+
+  shaders:
+    - shaders/liquid_effect.frag
