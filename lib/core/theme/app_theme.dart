@@ -32,7 +32,7 @@ abstract final class AppTheme {
     final textColor = brightness == Brightness.light ? AppColors.textPrimary : AppColors.textPrimaryDark;
 
     return AppBarTheme(
-      backgroundColor: bgColor.withValues(alpha: 0.8), // Glassy effect
+      backgroundColor: bgColor,
       foregroundColor: textColor,
       elevation: 0,
       scrolledUnderElevation: 0,

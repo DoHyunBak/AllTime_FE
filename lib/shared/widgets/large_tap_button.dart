@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'liquid_glass.dart';
 
-/// 큰 터치 타겟 버튼 — .btn 디자인 시스템 구현
+/// 큰 터치 타겟 버튼 — .btn 디자인 시스템 구현 (Tier 2 — 스페큘러 하이라이트)
 ///
 /// CSS:
 ///   background: #FAF9F5
@@ -26,36 +27,39 @@ class LargeTapButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          backgroundColor: backgroundColor,
-          foregroundColor: textColor,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          minimumSize: const Size(double.infinity, 44),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    return LiquidSpecular(
+      borderRadius: 12,
+      child: SizedBox(
+        width: double.infinity,
+        child: OutlinedButton(
+          onPressed: onPressed,
+          style: OutlinedButton.styleFrom(
+            backgroundColor: backgroundColor,
+            foregroundColor: textColor,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            minimumSize: const Size(double.infinity, 44),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            side: const BorderSide(
+              color: Color(0x661F1E1D), // rgba(31,30,29,0.4)
+              width: 0.57,
+            ),
+            textStyle: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+            ),
           ),
-          side: const BorderSide(
-            color: Color(0x661F1E1D), // rgba(31,30,29,0.4)
-            width: 0.57,
-          ),
-          textStyle: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 16),
-              const SizedBox(width: 6),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 16),
+                const SizedBox(width: 6),
+              ],
+              Text(label),
             ],
-            Text(label),
-          ],
+          ),
         ),
       ),
     );

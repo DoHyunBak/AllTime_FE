@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/app_background.dart';
 import '../../../shared/widgets/glass_container.dart';
+import '../../../shared/widgets/liquid_glass.dart';
 import '../domain/community_provider.dart';
 
 class PostDetailScreen extends ConsumerStatefulWidget {
@@ -48,28 +49,37 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('댓글이 등록되었습니다.'), duration: Duration(seconds: 2)),
+        const SnackBar(
+            content: Text('댓글이 등록되었습니다.'), duration: Duration(seconds: 2)),
       );
     }
   }
 
   void _deleteComment(String commentId) {
-    showDialog(
+    showGlassDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('댓글 삭제', style: TextStyle(fontWeight: FontWeight.w800)),
+        title:
+            const Text('댓글 삭제', style: TextStyle(fontWeight: FontWeight.w800)),
         content: const Text('댓글을 삭제하시겠습니까?', style: TextStyle(fontSize: 14)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('취소')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('취소')),
           TextButton(
             onPressed: () {
-              ref.read(commentProvider.notifier).delete(widget.postId, commentId);
+              ref
+                  .read(commentProvider.notifier)
+                  .delete(widget.postId, commentId);
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('댓글이 삭제되었습니다.'), duration: Duration(seconds: 2)),
+                const SnackBar(
+                    content: Text('댓글이 삭제되었습니다.'),
+                    duration: Duration(seconds: 2)),
               );
             },
-            child: const Text('삭제', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w700)),
+            child: const Text('삭제',
+                style: TextStyle(
+                    color: AppColors.error, fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -81,7 +91,14 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     final allPosts = ref.watch(postListProvider(null));
     final post = allPosts.firstWhere(
       (p) => p.id == widget.postId,
-      orElse: () => const Post(id: '', boardId: '', title: '알 수 없음', author: '', date: '', viewCount: 0, commentCount: 0),
+      orElse: () => const Post(
+          id: '',
+          boardId: '',
+          title: '알 수 없음',
+          author: '',
+          date: '',
+          viewCount: 0,
+          commentCount: 0),
     );
     final likeState = ref.watch(likeProvider);
     final comments = ref.watch(postCommentsProvider(widget.postId));
@@ -96,10 +113,14 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : AppColors.textPrimary),
+            icon: Icon(Icons.arrow_back,
+                color: isDark ? Colors.white : AppColors.textPrimary),
             onPressed: () => context.pop(),
           ),
-          title: Text('게시글', style: TextStyle(color: isDark ? Colors.white : AppColors.textPrimary, fontWeight: FontWeight.w800)),
+          title: Text('게시글',
+              style: TextStyle(
+                  color: isDark ? Colors.white : AppColors.textPrimary,
+                  fontWeight: FontWeight.w800)),
         ),
         body: Column(
           children: [
@@ -115,45 +136,96 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                       children: [
                         if (post.isHot) ...[
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: isDark ? AppColors.primary.withValues(alpha: 0.15) : AppColors.primaryBg,
+                              color: isDark
+                                  ? AppColors.primary.withValues(alpha: 0.15)
+                                  : AppColors.primaryBg,
                               borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 0.5),
+                              border: Border.all(
+                                  color:
+                                      AppColors.primary.withValues(alpha: 0.3),
+                                  width: 0.5),
                             ),
-                            child: const Text('HOT', style: TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.w800)),
+                            child: const Text('HOT',
+                                style: TextStyle(
+                                    fontSize: 10,
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w800)),
                           ),
                           const SizedBox(height: 12),
                         ],
-                        Text(post.title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: isDark ? Colors.white : AppColors.textPrimary)),
+                        Text(post.title,
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: isDark
+                                    ? Colors.white
+                                    : AppColors.textPrimary)),
                         const SizedBox(height: 12),
                         Row(
                           children: [
                             Container(
-                              width: 32, height: 32,
-                              decoration: BoxDecoration(shape: BoxShape.circle, color: isDark ? AppColors.bgElevatedDark : AppColors.bgElevated),
-                              child: const Icon(Icons.person, size: 16, color: AppColors.textMuted),
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: isDark
+                                      ? AppColors.bgElevatedDark
+                                      : AppColors.bgElevated),
+                              child: const Icon(Icons.person,
+                                  size: 16, color: AppColors.textMuted),
                             ),
                             const SizedBox(width: 10),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(post.author, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: isDark ? Colors.white : AppColors.textPrimary)),
-                                Text(post.date, style: TextStyle(fontSize: 11, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary)),
+                                Text(post.author,
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: isDark
+                                            ? Colors.white
+                                            : AppColors.textPrimary)),
+                                Text(post.date,
+                                    style: TextStyle(
+                                        fontSize: 11,
+                                        color: isDark
+                                            ? AppColors.textMutedDark
+                                            : AppColors.textSecondary)),
                               ],
                             ),
                             const Spacer(),
-                            Icon(Icons.visibility_outlined, size: 13, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary),
+                            Icon(Icons.visibility_outlined,
+                                size: 13,
+                                color: isDark
+                                    ? AppColors.textMutedDark
+                                    : AppColors.textSecondary),
                             const SizedBox(width: 3),
-                            Text('${post.viewCount}', style: TextStyle(fontSize: 12, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary)),
+                            Text('${post.viewCount}',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: isDark
+                                        ? AppColors.textMutedDark
+                                        : AppColors.textSecondary)),
                           ],
                         ),
                         const SizedBox(height: 20),
-                        Divider(color: isDark ? AppColors.borderDark : Colors.black.withValues(alpha: 0.05), height: 1),
+                        Divider(
+                            color: isDark
+                                ? AppColors.borderDark
+                                : Colors.black.withValues(alpha: 0.05),
+                            height: 1),
                         const SizedBox(height: 20),
                         Text(
                           '이곳은 상세 게시글 데모 화면입니다.\n실제 서버와 연결되면 여기에 본문 내용이 표시됩니다.\n\n기숙사 생활에 필요한 다양한 정보를 자유롭게 나눠보세요.',
-                          style: TextStyle(fontSize: 14, height: 1.7, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
+                          style: TextStyle(
+                              fontSize: 14,
+                              height: 1.7,
+                              color: isDark
+                                  ? AppColors.textSecondaryDark
+                                  : AppColors.textSecondary),
                         ),
                         const SizedBox(height: 24),
                         Row(
@@ -162,10 +234,14 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                             _LikeButton(
                               isLiked: isLiked,
                               count: likeCount,
-                              onTap: () => ref.read(likeProvider.notifier).toggle(widget.postId),
+                              onTap: () => ref
+                                  .read(likeProvider.notifier)
+                                  .toggle(widget.postId),
                             ),
                             const SizedBox(width: 12),
-                            _InfoChip(icon: Icons.chat_bubble_outline, label: '댓글 ${comments.length}'),
+                            _InfoChip(
+                                icon: Icons.chat_bubble_outline,
+                                label: '댓글 ${comments.length}'),
                           ],
                         ),
                       ],
@@ -183,24 +259,47 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                           padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
                           child: Row(
                             children: [
-                              Icon(Icons.chat_bubble_outline, size: 15, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
+                              Icon(Icons.chat_bubble_outline,
+                                  size: 15,
+                                  color: isDark
+                                      ? AppColors.textSecondaryDark
+                                      : AppColors.textSecondary),
                               const SizedBox(width: 6),
-                              Text('댓글 ${comments.length}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: isDark ? Colors.white : AppColors.textPrimary)),
+                              Text('댓글 ${comments.length}',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w800,
+                                      color: isDark
+                                          ? Colors.white
+                                          : AppColors.textPrimary)),
                             ],
                           ),
                         ),
-                        Divider(color: isDark ? AppColors.borderDark : Colors.black.withValues(alpha: 0.05), height: 1),
+                        Divider(
+                            color: isDark
+                                ? AppColors.borderDark
+                                : Colors.black.withValues(alpha: 0.05),
+                            height: 1),
                         if (comments.isEmpty)
                           Padding(
                             padding: const EdgeInsets.all(20),
-                            child: Text('첫 번째 댓글을 남겨보세요!', style: TextStyle(fontSize: 13, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary)),
+                            child: Text('첫 번째 댓글을 남겨보세요!',
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    color: isDark
+                                        ? AppColors.textMutedDark
+                                        : AppColors.textSecondary)),
                           )
                         else
-                          ...comments.asMap().entries.map((entry) => _CommentItem(
-                            comment: entry.value,
-                            isLast: entry.key == comments.length - 1,
-                            onDelete: () => _deleteComment(entry.value.id),
-                          )),
+                          ...comments
+                              .asMap()
+                              .entries
+                              .map((entry) => _CommentItem(
+                                    comment: entry.value,
+                                    isLast: entry.key == comments.length - 1,
+                                    onDelete: () =>
+                                        _deleteComment(entry.value.id),
+                                  )),
                       ],
                     ),
                   ),
@@ -212,31 +311,52 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
             // ── 댓글 입력창 ──────────────────────────────────────
             Container(
               decoration: BoxDecoration(
-                color: isDark ? AppColors.bgSurfaceDark.withValues(alpha: 0.9) : Colors.white.withValues(alpha: 0.85),
-                border: Border(top: BorderSide(color: isDark ? AppColors.borderDark : Colors.black.withValues(alpha: 0.05), width: 0.5)),
+                color: isDark
+                    ? AppColors.bgSurfaceDark.withValues(alpha: 0.9)
+                    : Colors.white.withValues(alpha: 0.85),
+                border: Border(
+                    top: BorderSide(
+                        color: isDark
+                            ? AppColors.borderDark
+                            : Colors.black.withValues(alpha: 0.05),
+                        width: 0.5)),
               ),
               padding: EdgeInsets.only(
-                left: 16, right: 12, top: 10,
+                left: 16,
+                right: 12,
+                top: 10,
                 bottom: MediaQuery.of(context).viewInsets.bottom + 10,
               ),
               child: Row(
                 children: [
                   Container(
-                    width: 32, height: 32,
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: isDark ? AppColors.bgElevatedDark : AppColors.bgElevated),
-                    child: const Icon(Icons.person, size: 16, color: AppColors.textSecondary),
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isDark
+                            ? AppColors.bgElevatedDark
+                            : AppColors.bgElevated),
+                    child: const Icon(Icons.person,
+                        size: 16, color: AppColors.textSecondary),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: TextField(
                       controller: _commentController,
-                      style: TextStyle(fontSize: 14, color: isDark ? Colors.white : AppColors.textPrimary),
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: isDark ? Colors.white : AppColors.textPrimary),
                       maxLines: null,
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => _submitComment(),
                       decoration: InputDecoration(
                         hintText: '댓글을 입력하세요...',
-                        hintStyle: TextStyle(fontSize: 14, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary),
+                        hintStyle: TextStyle(
+                            fontSize: 14,
+                            color: isDark
+                                ? AppColors.textMutedDark
+                                : AppColors.textSecondary),
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: const EdgeInsets.symmetric(vertical: 6),
@@ -248,17 +368,24 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                   GestureDetector(
                     onTap: _isSubmitting ? null : _submitComment,
                     child: Container(
-                      width: 34, height: 34,
+                      width: 34,
+                      height: 34,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: _isSubmitting ? (isDark ? AppColors.bgElevatedDark : AppColors.bgElevated) : AppColors.primary,
+                        color: _isSubmitting
+                            ? (isDark
+                                ? AppColors.bgElevatedDark
+                                : AppColors.bgElevated)
+                            : AppColors.primary,
                       ),
                       child: _isSubmitting
                           ? const Padding(
                               padding: EdgeInsets.all(9),
-                              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: AppColors.primary),
                             )
-                          : const Icon(Icons.send_rounded, size: 16, color: Colors.white),
+                          : const Icon(Icons.send_rounded,
+                              size: 16, color: Colors.white),
                     ),
                   ),
                 ],
@@ -272,7 +399,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
 }
 
 class _LikeButton extends StatelessWidget {
-  const _LikeButton({required this.isLiked, required this.count, required this.onTap});
+  const _LikeButton(
+      {required this.isLiked, required this.count, required this.onTap});
   final bool isLiked;
   final int count;
   final VoidCallback onTap;
@@ -286,22 +414,36 @@ class _LikeButton extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isLiked 
-              ? (isDark ? AppColors.primary.withValues(alpha: 0.15) : AppColors.primaryBg) 
-              : (isDark ? AppColors.bgElevatedDark : Colors.white.withValues(alpha: 0.2)),
+          color: isLiked
+              ? (isDark
+                  ? AppColors.primary.withValues(alpha: 0.15)
+                  : AppColors.primaryBg)
+              : (isDark
+                  ? AppColors.bgElevatedDark
+                  : Colors.white.withValues(alpha: 0.2)),
           borderRadius: BorderRadius.circular(500),
-          border: Border.all(color: isLiked ? AppColors.primary.withValues(alpha: 0.5) : (isDark ? AppColors.borderDark : Colors.white.withValues(alpha: 0.6))),
+          border: Border.all(
+              color: isLiked
+                  ? AppColors.primary.withValues(alpha: 0.5)
+                  : (isDark
+                      ? AppColors.borderDark
+                      : Colors.white.withValues(alpha: 0.6))),
         ),
         child: Row(
           children: [
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
-              transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+              transitionBuilder: (child, anim) =>
+                  ScaleTransition(scale: anim, child: child),
               child: Icon(
                 isLiked ? Icons.favorite : Icons.favorite_border,
                 key: ValueKey(isLiked),
                 size: 16,
-                color: isLiked ? AppColors.primary : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
+                color: isLiked
+                    ? AppColors.primary
+                    : (isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondary),
               ),
             ),
             const SizedBox(width: 6),
@@ -310,7 +452,11 @@ class _LikeButton extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: isLiked ? AppColors.primary : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
+                color: isLiked
+                    ? AppColors.primary
+                    : (isDark
+                        ? AppColors.textSecondaryDark
+                        : AppColors.textSecondary),
               ),
               child: Text('추천 $count'),
             ),
@@ -332,15 +478,30 @@ class _InfoChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.bgElevatedDark : Colors.white.withValues(alpha: 0.2),
+        color: isDark
+            ? AppColors.bgElevatedDark
+            : Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(500),
-        border: Border.all(color: isDark ? AppColors.borderDark : Colors.white.withValues(alpha: 0.6)),
+        border: Border.all(
+            color: isDark
+                ? AppColors.borderDark
+                : Colors.white.withValues(alpha: 0.6)),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 15, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
+          Icon(icon,
+              size: 15,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondary),
           const SizedBox(width: 6),
-          Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary)),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondary)),
         ],
       ),
     );
@@ -348,7 +509,8 @@ class _InfoChip extends StatelessWidget {
 }
 
 class _CommentItem extends StatelessWidget {
-  const _CommentItem({required this.comment, required this.isLast, required this.onDelete});
+  const _CommentItem(
+      {required this.comment, required this.isLast, required this.onDelete});
   final Comment comment;
   final bool isLast;
   final VoidCallback onDelete;
@@ -359,15 +521,27 @@ class _CommentItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        border: isLast ? null : Border(bottom: BorderSide(color: isDark ? AppColors.borderDark : Colors.black.withValues(alpha: 0.05), width: 0.5)),
+        border: isLast
+            ? null
+            : Border(
+                bottom: BorderSide(
+                    color: isDark
+                        ? AppColors.borderDark
+                        : Colors.black.withValues(alpha: 0.05),
+                    width: 0.5)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 28, height: 28,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: isDark ? AppColors.bgElevatedDark : AppColors.bgElevated),
-            child: const Icon(Icons.person, size: 14, color: AppColors.textSecondary),
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color:
+                    isDark ? AppColors.bgElevatedDark : AppColors.bgElevated),
+            child: const Icon(Icons.person,
+                size: 14, color: AppColors.textSecondary),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -376,13 +550,29 @@ class _CommentItem extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(comment.author, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isDark ? Colors.white : AppColors.textPrimary)),
+                    Text(comment.author,
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color:
+                                isDark ? Colors.white : AppColors.textPrimary)),
                     const SizedBox(width: 8),
-                    Text(comment.date, style: TextStyle(fontSize: 11, color: isDark ? AppColors.textMutedDark : AppColors.textSecondary)),
+                    Text(comment.date,
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: isDark
+                                ? AppColors.textMutedDark
+                                : AppColors.textSecondary)),
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(comment.content, style: TextStyle(fontSize: 13, height: 1.5, color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary)),
+                Text(comment.content,
+                    style: TextStyle(
+                        fontSize: 13,
+                        height: 1.5,
+                        color: isDark
+                            ? AppColors.textSecondaryDark
+                            : AppColors.textSecondary)),
               ],
             ),
           ),
@@ -390,7 +580,8 @@ class _CommentItem extends StatelessWidget {
             onTap: onDelete,
             child: const Padding(
               padding: EdgeInsets.only(left: 8),
-              child: Icon(Icons.close, size: 14, color: AppColors.textSecondary),
+              child:
+                  Icon(Icons.close, size: 14, color: AppColors.textSecondary),
             ),
           ),
         ],
@@ -398,4 +589,3 @@ class _CommentItem extends StatelessWidget {
     );
   }
 }
-

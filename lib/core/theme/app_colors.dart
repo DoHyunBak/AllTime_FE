@@ -9,9 +9,9 @@ abstract final class AppColors {
   static const primaryBg  = Color(0xFFE8F8EF); // 연한 그린 워시
 
   // ── Background / Surface (Light) ──────────────────────────
-  static const bgBase     = Color(0xFFF9FAFB); // Secondary background
+  static const bgBase     = Color(0xFFF2F2F7); // Apple System Grouped Background
   static const bgSurface  = Color(0xFFFFFFFF); // Canvas / Card
-  static const bgElevated = Color(0xFFF2F4F6); // Lifted surface (inputs)
+  static const bgElevated = Color(0xFFF2F2F7); // Lifted surface (inputs)
   static const bgCard     = Color(0xFFFFFFFF);
   static const bgAlt      = Color(0xFFF2F4F6);
 

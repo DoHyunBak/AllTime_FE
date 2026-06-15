@@ -51,9 +51,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Expanded(
             child: _loading
                 ? const _HomeSkeleton()
-                : ListView(
-                    padding: const EdgeInsets.all(20),
-                    children: [
+                  : ListView(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                      children: [
                       Appear(index: 0, child: _GreetingHero()),
                       const SizedBox(height: 16),
                       Appear(index: 1, child: _DormStatusBoard()),
@@ -166,11 +166,10 @@ class _GreetingHero extends ConsumerWidget {
             TossPressable(
               onTap: () => context.push('/post/${urgent.id}'),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
                   color: AppColors.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.error.withValues(alpha: 0.25), width: 0.5),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
                   children: [

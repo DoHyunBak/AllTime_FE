@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_colors.dart';
 import 'dorm_mode_provider.dart';
+import '../../shared/widgets/liquid_glass.dart';
 
 // 위치 기반 자동 기숙사 감지 서비스
 // 실제: geolocator 패키지 + 기숙사 GPS 좌표 geofence 로직
@@ -27,7 +28,7 @@ class LocationDormDetector {
   }
 
   static void _showDormEntryDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
+    showGlassDialog(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
@@ -49,7 +50,8 @@ class LocationDormDetector {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('아니오', style: TextStyle(color: AppColors.textMuted)),
+            child:
+                const Text('아니오', style: TextStyle(color: AppColors.textMuted)),
           ),
           TextButton(
             onPressed: () {
@@ -65,7 +67,8 @@ class LocationDormDetector {
             },
             child: const Text(
               '예, 켜기',
-              style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
+              style: TextStyle(
+                  color: AppColors.primary, fontWeight: FontWeight.w700),
             ),
           ),
         ],

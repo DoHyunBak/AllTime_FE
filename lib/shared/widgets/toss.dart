@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import '../../core/theme/app_colors.dart';
+import 'liquid_glass.dart';
 
 /// ─────────────────────────────────────────────────────────────
 /// TossColors — 타입드 디자인 토큰 (ThemeExtension)
@@ -23,17 +24,17 @@ class TossColors extends ThemeExtension<TossColors> {
     required this.liftedSurface,
   });
 
-  final Color brand;               // #3182f6
-  final Color brandWash;           // #e8f3ff
-  final Color textPrimary;         // #191f28
-  final Color textSecondary;       // #333d4b
-  final Color textMuted;           // #6b7684
-  final Color textDimmed;          // #8b95a1
-  final Color borderLight;         // #e5e8eb
-  final Color borderStrong;        // #d1d6db
-  final Color canvas;              // #ffffff
+  final Color brand; // #3182f6
+  final Color brandWash; // #e8f3ff
+  final Color textPrimary; // #191f28
+  final Color textSecondary; // #333d4b
+  final Color textMuted; // #6b7684
+  final Color textDimmed; // #8b95a1
+  final Color borderLight; // #e5e8eb
+  final Color borderStrong; // #d1d6db
+  final Color canvas; // #ffffff
   final Color secondaryBackground; // #f9fafb
-  final Color liftedSurface;       // #f2f4f6
+  final Color liftedSurface; // #f2f4f6
 
   static const light = TossColors(
     brand: AppColors.primary,
@@ -91,7 +92,8 @@ class TossColors extends ThemeExtension<TossColors> {
       borderLight: Color.lerp(borderLight, other.borderLight, t)!,
       borderStrong: Color.lerp(borderStrong, other.borderStrong, t)!,
       canvas: Color.lerp(canvas, other.canvas, t)!,
-      secondaryBackground: Color.lerp(secondaryBackground, other.secondaryBackground, t)!,
+      secondaryBackground:
+          Color.lerp(secondaryBackground, other.secondaryBackground, t)!,
       liftedSurface: Color.lerp(liftedSurface, other.liftedSurface, t)!,
     );
   }
@@ -119,12 +121,15 @@ class TossPressable extends StatefulWidget {
   State<TossPressable> createState() => _TossPressableState();
 }
 
-class _TossPressableState extends State<TossPressable> with SingleTickerProviderStateMixin {
+class _TossPressableState extends State<TossPressable>
+    with SingleTickerProviderStateMixin {
   // unbounded: 스프링이 살짝 오버슈트해도 클램프되지 않도록
-  late final AnimationController _c = AnimationController.unbounded(vsync: this, value: 1.0);
+  late final AnimationController _c =
+      AnimationController.unbounded(vsync: this, value: 1.0);
 
   // 탄성/감쇠 — 빠릿하면서 미세한 바운스
-  static const _spring = SpringDescription(mass: 1, stiffness: 520, damping: 22);
+  static const _spring =
+      SpringDescription(mass: 1, stiffness: 520, damping: 22);
 
   @override
   void dispose() {
@@ -189,7 +194,10 @@ class TossButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final (bg, fg) = switch (variant) {
       TossButtonVariant.primary => (AppColors.primary, Colors.white),
-      TossButtonVariant.secondary => (AppColors.primaryBg, AppColors.primaryDim),
+      TossButtonVariant.secondary => (
+          AppColors.primaryBg,
+          AppColors.primaryDim
+        ),
       TossButtonVariant.danger => (AppColors.error, Colors.white),
     };
     final active = enabled && !loading;
@@ -198,20 +206,27 @@ class TossButton extends StatelessWidget {
       onTap: active ? onTap : null,
       child: Opacity(
         opacity: active ? 1.0 : 0.4,
-        child: Container(
-          width: full ? double.infinity : null,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(7),
+        child: LiquidSpecular(
+          borderRadius: 7,
+          child: Container(
+            width: full ? double.infinity : null,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(7),
+            ),
+            child: loading
+                ? SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, valueColor: AlwaysStoppedAnimation(fg)),
+                  )
+                : Text(label,
+                    style: TextStyle(
+                        color: fg, fontSize: 15, fontWeight: FontWeight.w700)),
           ),
-          child: loading
-              ? SizedBox(
-                  width: 18, height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(fg)),
-                )
-              : Text(label, style: TextStyle(color: fg, fontSize: 15, fontWeight: FontWeight.w700)),
         ),
       ),
     );
@@ -242,8 +257,10 @@ class Appear extends StatefulWidget {
 }
 
 class _AppearState extends State<Appear> with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(vsync: this, duration: widget.duration);
-  late final Animation<double> _curve = CurvedAnimation(parent: _c, curve: Curves.easeOutCubic);
+  late final AnimationController _c =
+      AnimationController(vsync: this, duration: widget.duration);
+  late final Animation<double> _curve =
+      CurvedAnimation(parent: _c, curve: Curves.easeOutCubic);
 
   @override
   void initState() {
@@ -384,8 +401,10 @@ class ShimmerLoader extends StatefulWidget {
   State<ShimmerLoader> createState() => _ShimmerLoaderState();
 }
 
-class _ShimmerLoaderState extends State<ShimmerLoader> with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(vsync: this, duration: widget.period)..repeat();
+class _ShimmerLoaderState extends State<ShimmerLoader>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c =
+      AnimationController(vsync: this, duration: widget.period)..repeat();
 
   @override
   void dispose() {
@@ -436,7 +455,8 @@ class _SweepTranslate extends GradientTransform {
 /// 연속 회전 + 가속/감속 커브로 유기적인 로딩 모션. 의존성/에셋 없음.
 /// ─────────────────────────────────────────────────────────────
 class FuturisticLoader extends StatefulWidget {
-  const FuturisticLoader({super.key, this.size = 36, this.color, this.strokeWidth = 3.5});
+  const FuturisticLoader(
+      {super.key, this.size = 36, this.color, this.strokeWidth = 3.5});
   final double size;
   final Color? color;
   final double strokeWidth;
@@ -445,9 +465,11 @@ class FuturisticLoader extends StatefulWidget {
   State<FuturisticLoader> createState() => _FuturisticLoaderState();
 }
 
-class _FuturisticLoaderState extends State<FuturisticLoader> with SingleTickerProviderStateMixin {
-  late final AnimationController _c =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 1100))..repeat();
+class _FuturisticLoaderState extends State<FuturisticLoader>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 1100))
+    ..repeat();
 
   @override
   void dispose() {
@@ -504,11 +526,13 @@ class _SweepRingPainter extends CustomPainter {
         colors: [color.withValues(alpha: 0.0), color],
         transform: GradientRotation(start),
       ).createShader(rect);
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), start, 4.4, false, sweep);
+    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), start, 4.4,
+        false, sweep);
   }
 
   @override
-  bool shouldRepaint(covariant _SweepRingPainter old) => old.t != t || old.color != color;
+  bool shouldRepaint(covariant _SweepRingPainter old) =>
+      old.t != t || old.color != color;
 }
 
 /// 시머가 적용된 스켈레톤 블록 (로딩 자리표시자).

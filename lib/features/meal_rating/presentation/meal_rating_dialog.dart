@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../../shared/widgets/liquid_glass.dart';
 
 // 30분 후 평가 팝업을 띄워야 하는지 상태 관리
 class MealRatingScheduler {
@@ -104,195 +105,215 @@ class _MealRatingSheetState extends State<_MealRatingSheet> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Container(
-        decoration: BoxDecoration(
-          color: AppColors.bgSurface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
-          border: Border.all(
-            color: AppColors.borderLight,
-            width: 1
-          ),
-        ),
-        padding: EdgeInsets.only(
-          left: 28,
-          right: 28,
-          top: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 32,
-        ),
-        child: _submitted
-            ? _SubmittedView(isDark: isDark)
-            : Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 드래그 핸들
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: isDark ? Colors.white.withValues(alpha: 0.3) : AppColors.textPrimary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+    return LiquidGlass(
+      tier: LiquidGlassTier.tier1,
+      borderRadius: 28,
+      padding: EdgeInsets.only(
+        left: 28,
+        right: 28,
+        top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 32,
+      ),
+      child: _submitted
+          ? _SubmittedView(isDark: isDark)
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 드래그 핸들
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.3)
+                          : AppColors.textPrimary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  Text(
-                    '${widget.menuName} 어떠셨나요?',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: isDark ? Colors.white : AppColors.textPrimary,
-                    ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  '${widget.menuName} 어떠셨나요?',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? Colors.white : AppColors.textPrimary,
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    '오늘 식사 평가를 남겨주세요',
-                    style: TextStyle(
-                      fontSize: 13, 
-                      color: isDark ? Colors.white.withValues(alpha: 0.6) : AppColors.textSecondary
-                    ),
-                  ),
-                  const SizedBox(height: 24),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '오늘 식사 평가를 남겨주세요',
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.6)
+                          : AppColors.textSecondary),
+                ),
+                const SizedBox(height: 24),
 
-                  // 별점
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(5, (i) => GestureDetector(
-                      onTap: () => setState(() => _stars = i + 1),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6),
-                        child: Icon(
-                          i < _stars ? Icons.star : Icons.star_border,
-                          size: 40,
-                          color: i < _stars 
-                              ? AppColors.star 
-                              : (isDark ? Colors.white.withValues(alpha: 0.2) : AppColors.textPrimary.withValues(alpha: 0.1)),
-                        ),
-                      ),
-                    )),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // 사진 업로드 (500원 할인 안내)
-                  GestureDetector(
-                    onTap: _pickPhoto,
-                    child: Container(
-                      width: double.infinity,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.textPrimary.withValues(alpha: 0.02),
-                        border: Border.all(
-                          color: _photo != null 
-                              ? (isDark ? Colors.white.withValues(alpha: 0.5) : AppColors.primary.withValues(alpha: 0.3)) 
-                              : (isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.textPrimary.withValues(alpha: 0.05)),
-                          width: _photo != null ? 1.5 : 1,
-                        ),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: _photo != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: kIsWeb
-                                  ? Image.network(_photo!.path, fit: BoxFit.cover)
-                                  : Image.file(File(_photo!.path), fit: BoxFit.cover),
-                            )
-                          : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.camera_alt_outlined, 
-                                  color: isDark ? Colors.white54 : AppColors.textSecondary, 
-                                  size: 28
-                                ),
-                                const SizedBox(height: 8),
-                                RichText(
-                                  text: TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: '사진 추가 시 ',
-                                        style: TextStyle(
-                                          fontSize: 12, 
-                                          color: isDark ? Colors.white54 : AppColors.textSecondary
-                                        ),
-                                      ),
-                                      TextSpan(
-                                        text: '500원 할인 쿠폰',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: isDark ? Colors.white : AppColors.textPrimary,
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                      ),
-                                      TextSpan(
-                                        text: ' 지급',
-                                        style: TextStyle(
-                                          fontSize: 12, 
-                                          color: isDark ? Colors.white54 : AppColors.textSecondary
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                // 별점
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                      5,
+                      (i) => GestureDetector(
+                            onTap: () => setState(() => _stars = i + 1),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 6),
+                              child: Icon(
+                                i < _stars ? Icons.star : Icons.star_border,
+                                size: 40,
+                                color: i < _stars
+                                    ? AppColors.star
+                                    : (isDark
+                                        ? Colors.white.withValues(alpha: 0.2)
+                                        : AppColors.textPrimary
+                                            .withValues(alpha: 0.1)),
+                              ),
                             ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+                          )),
+                ),
+                const SizedBox(height: 24),
 
-                  // 코멘트
-                  TextField(
-                    controller: _commentController,
-                    maxLines: 2,
-                    style: TextStyle(
-                      fontSize: 14, 
-                      color: isDark ? Colors.white : AppColors.textPrimary
-                    ),
-                    decoration: InputDecoration(
-                      hintText: '한 줄 리뷰를 남겨주세요 (선택)',
-                      hintStyle: TextStyle(
-                        fontSize: 14, 
-                        color: isDark ? Colors.white.withValues(alpha: 0.3) : AppColors.textMuted
-                      ),
-                      contentPadding: const EdgeInsets.all(16),
-                      filled: true,
-                      fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.textPrimary.withValues(alpha: 0.02),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.textPrimary.withValues(alpha: 0.05)
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.textPrimary.withValues(alpha: 0.05)
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: isDark ? Colors.white.withValues(alpha: 0.4) : AppColors.primary.withValues(alpha: 0.4), 
-                          width: 1.5
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // 제출 버튼
-                  SizedBox(
+                // 사진 업로드 (500원 할인 안내)
+                GestureDetector(
+                  onTap: _pickPhoto,
+                  child: Container(
                     width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: _submit,
-                      child: Text(
-                        '평가 제출'.toUpperCase(),
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.05)
+                          : AppColors.textPrimary.withValues(alpha: 0.02),
+                      border: Border.all(
+                        color: _photo != null
+                            ? (isDark
+                                ? Colors.white.withValues(alpha: 0.5)
+                                : AppColors.primary.withValues(alpha: 0.3))
+                            : (isDark
+                                ? Colors.white.withValues(alpha: 0.1)
+                                : AppColors.textPrimary
+                                    .withValues(alpha: 0.05)),
+                        width: _photo != null ? 1.5 : 1,
                       ),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: _photo != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: kIsWeb
+                                ? Image.network(_photo!.path, fit: BoxFit.cover)
+                                : Image.file(File(_photo!.path),
+                                    fit: BoxFit.cover),
+                          )
+                        : Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.camera_alt_outlined,
+                                  color: isDark
+                                      ? Colors.white54
+                                      : AppColors.textSecondary,
+                                  size: 28),
+                              const SizedBox(height: 8),
+                              RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: '사진 추가 시 ',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: isDark
+                                              ? Colors.white54
+                                              : AppColors.textSecondary),
+                                    ),
+                                    TextSpan(
+                                      text: '500원 할인 쿠폰',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: isDark
+                                            ? Colors.white
+                                            : AppColors.textPrimary,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: ' 지급',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: isDark
+                                              ? Colors.white54
+                                              : AppColors.textSecondary),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 코멘트
+                TextField(
+                  controller: _commentController,
+                  maxLines: 2,
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.white : AppColors.textPrimary),
+                  decoration: InputDecoration(
+                    hintText: '한 줄 리뷰를 남겨주세요 (선택)',
+                    hintStyle: TextStyle(
+                        fontSize: 14,
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.3)
+                            : AppColors.textMuted),
+                    contentPadding: const EdgeInsets.all(16),
+                    filled: true,
+                    fillColor: isDark
+                        ? Colors.white.withValues(alpha: 0.05)
+                        : AppColors.textPrimary.withValues(alpha: 0.02),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : AppColors.textPrimary.withValues(alpha: 0.05)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.1)
+                              : AppColors.textPrimary.withValues(alpha: 0.05)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.4)
+                              : AppColors.primary.withValues(alpha: 0.4),
+                          width: 1.5),
                     ),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 24),
+
+                // 제출 버튼
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: _submit,
+                    child: Text(
+                      '평가 제출'.toUpperCase(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
@@ -308,27 +329,24 @@ class _SubmittedView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.check_circle, 
-            color: isDark ? Colors.white : AppColors.primary, 
-            size: 60
-          ),
+          Icon(Icons.check_circle,
+              color: isDark ? Colors.white : AppColors.primary, size: 60),
           const SizedBox(height: 16),
           Text(
             '평가 완료!',
             style: TextStyle(
-              fontSize: 18, 
-              fontWeight: FontWeight.w900, 
-              color: isDark ? Colors.white : AppColors.textPrimary
-            ),
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: isDark ? Colors.white : AppColors.textPrimary),
           ),
           const SizedBox(height: 6),
           Text(
             '소중한 리뷰 감사합니다',
             style: TextStyle(
-              fontSize: 14, 
-              color: isDark ? Colors.white.withValues(alpha: 0.6) : AppColors.textSecondary
-            ),
+                fontSize: 14,
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.6)
+                    : AppColors.textSecondary),
           ),
         ],
       ),
